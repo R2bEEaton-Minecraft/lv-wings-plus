@@ -32,7 +32,7 @@ public final class MessageSetFlightPose implements Message {
     public static void handle(MessageSetFlightPose message, ServerMessageContext context) {
         Player player = context.getPlayer();
         Flights.get(player)
-            .filter(flight -> flight.hasEffect(player))
+            .filter(flight -> flight.hasEffect(player) && (flight.isFlying() || flight.isFloating()))
             .ifPresent(flight -> flight.setPose(message.pose, Flight.PlayerSet.ofAll()));
     }
 }

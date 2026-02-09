@@ -65,7 +65,7 @@ public final class ClientProxy extends Proxy {
             .key("key.wings.pose", KeyConflictContext.IN_GAME, KeyModifier.NONE, GLFW.GLFW_KEY_G)
             .onPress(() -> {
                 Player player = Minecraft.getInstance().player;
-                Flights.get(player).filter(flight -> flight.hasEffect(player)).ifPresent(flight -> {
+                Flights.get(player).filter(flight -> flight.hasEffect(player) && (flight.isFlying() || flight.isFloating())).ifPresent(flight -> {
                     FlightPose next = flight.getPose().next();
                     flight.setPose(next);
                     this.network.sendToServer(new MessageSetFlightPose(next));

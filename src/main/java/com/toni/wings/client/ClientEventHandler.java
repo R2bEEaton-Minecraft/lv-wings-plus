@@ -17,7 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.player.CameraType;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -26,35 +27,26 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = WingsMod.ID)
 public final class ClientEventHandler {
     private static ResourceKey<Level> lastPlayerDimension;
-    private static final int POSE_PREVIEW_TICKS = 20;
-    private static final int POSE_FADE_OUT_TICKS = 8;
-    private static final int POSE_FADE_IN_TICKS = 6;
+    private static final int POSE_PREVIEW_TICKS = 30;
+    private static final int POSE_FADE_OUT_TICKS = 30;
     private static int posePreviewTicks;
-    private static int poseFadeInTicks;
-    private static CameraType posePreviewPrevCamera;
 
     private ClientEventHandler() {
     }
 
     public static void beginPosePreview() {
-        Minecraft mc = Minecraft.getInstance();
-        if (posePreviewTicks <= 0) {
-            posePreviewPrevCamera = mc.options.getCameraType();
-        }
-        mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
         posePreviewTicks = POSE_PREVIEW_TICKS;
-        poseFadeInTicks = 0;
     }
 
     @SubscribeEvent
@@ -69,14 +61,6 @@ public final class ClientEventHandler {
         }
         if (posePreviewTicks > 0) {
             posePreviewTicks--;
-            if (posePreviewTicks == 0) {
-                CameraType fallback = posePreviewPrevCamera == null ? CameraType.FIRST_PERSON : posePreviewPrevCamera;
-                Minecraft.getInstance().options.setCameraType(fallback);
-                posePreviewPrevCamera = null;
-                poseFadeInTicks = POSE_FADE_IN_TICKS;
-            }
-        } else if (poseFadeInTicks > 0) {
-            poseFadeInTicks--;
         }
         Flights.get(player).ifPresent(flight -> {
             if (flight.isFloating() && isMovementKeyDown()) {
@@ -161,26 +145,28 @@ public final class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Pre event) {
-        if (posePreviewTicks <= 0 && poseFadeInTicks <= 0) {
+    public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
+        if (posePreviewTicks <= 0) {
             return;
         }
-        if (event.getOverlay() != VanillaGuiOverlay.ALL) {
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null) {
             return;
         }
-        float alpha;
-        if (posePreviewTicks > 0 && posePreviewTicks <= POSE_FADE_OUT_TICKS) {
-            alpha = (POSE_FADE_OUT_TICKS - posePreviewTicks + 1) / (float) POSE_FADE_OUT_TICKS;
-        } else if (poseFadeInTicks > 0) {
-            alpha = poseFadeInTicks / (float) POSE_FADE_IN_TICKS;
-        } else {
-            return;
+        GuiGraphics gui = event.getGuiGraphics();
+        int width = mc.getWindow().getGuiScaledWidth();
+        int height = mc.getWindow().getGuiScaledHeight();
+        int scale = 40;
+        int x = width - 60;
+        int y = height - 30;
+        float alpha = 1.0F;
+        if (posePreviewTicks <= POSE_FADE_OUT_TICKS) {
+            alpha = Mth.clamp(posePreviewTicks / (float) POSE_FADE_OUT_TICKS, 0.0F, 1.0F);
         }
-        int a = Mth.clamp((int) (alpha * 160.0F), 0, 255);
-        int color = (a << 24);
-        int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-        int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-        event.getGuiGraphics().fill(0, 0, width, height, color);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(gui, x, y, scale, 20.0F, 20.0F, player);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @SubscribeEvent

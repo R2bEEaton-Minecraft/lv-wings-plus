@@ -7,6 +7,8 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.Objects;
 
@@ -40,5 +42,10 @@ public class WingsArmorItem extends ArmorItem implements DyeableLeatherItem {
     public boolean hasCustomColor(ItemStack stack) {
         CompoundTag display = stack.getTagElement(TAG_DISPLAY);
         return display != null && display.contains(TAG_COLOR, Tag.TAG_INT);
+    }
+
+    @Override
+    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+        return "wings:textures/models/armor/wings_hidden_layer_1.png";
     }
 }
