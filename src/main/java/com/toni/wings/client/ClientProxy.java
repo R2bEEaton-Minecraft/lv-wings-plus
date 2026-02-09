@@ -13,14 +13,18 @@ import com.toni.wings.client.model.ModelWingsInsectoid;
 import com.toni.wings.client.renderer.LayerWings;
 import com.toni.wings.server.flight.Flight;
 import com.toni.wings.server.flight.Flights;
+import com.toni.wings.server.flight.FlightPose;
 import com.toni.wings.server.item.BatBloodBottleItem;
 import com.toni.wings.server.item.WingsItems;
+import com.toni.wings.server.net.serverbound.MessageSetFloating;
+import com.toni.wings.server.net.serverbound.MessageSetFlightPose;
 import com.toni.wings.server.net.serverbound.MessageControlFlying;
 import com.toni.wings.util.KeyInputListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -56,6 +60,25 @@ public final class ClientProxy extends Proxy {
                     if (flight.getWing().equals(WingsMod.WINGLESS) && !flight.isFlying()) {
                         BatBloodBottleItem.removeWings(player);
                     }
+                });
+            })
+            .key("key.wings.pose", KeyConflictContext.IN_GAME, KeyModifier.NONE, GLFW.GLFW_KEY_G)
+            .onPress(() -> {
+                Player player = Minecraft.getInstance().player;
+                Flights.get(player).filter(flight -> flight.hasEffect(player)).ifPresent(flight -> {
+                    FlightPose next = flight.getPose().next();
+                    flight.setPose(next);
+                    this.network.sendToServer(new MessageSetFlightPose(next));
+                    ClientEventHandler.beginPosePreview();
+                });
+            })
+            .key("key.wings.float", KeyConflictContext.IN_GAME, KeyModifier.NONE, GLFW.GLFW_KEY_H)
+            .onPress(() -> {
+                Player player = Minecraft.getInstance().player;
+                Flights.get(player).filter(flight -> flight.canFly(player)).ifPresent(flight -> {
+                    boolean next = !flight.isFloating();
+                    flight.setFloating(next);
+                    this.network.sendToServer(new MessageSetFloating(next));
                 });
             })
             .build()
@@ -130,5 +153,14 @@ public final class ClientProxy extends Proxy {
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> tintIndex == 0 ? 0x9B172D : 0xFFFFFF, WingsItems.BAT_BLOOD_BOTTLE.get());
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) {
+                return 0xFFFFFF;
+            }
+            if (stack.getItem() instanceof DyeableLeatherItem dyeable) {
+                return dyeable.getColor(stack);
+            }
+            return 0xFFFFFF;
+        }, WingsItems.WINGS.get());
     }
 }

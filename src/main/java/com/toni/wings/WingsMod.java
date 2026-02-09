@@ -111,6 +111,10 @@ public final class WingsMod {
         this.requireProxy().addFlightListeners(player, instance);
     }
 
+    public com.toni.wings.server.net.Network network() {
+        return this.requireProxy().network;
+    }
+
     public static WingsMod instance() {
         return INSTANCE;
     }

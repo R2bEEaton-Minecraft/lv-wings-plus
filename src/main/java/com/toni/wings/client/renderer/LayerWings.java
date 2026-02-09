@@ -6,6 +6,7 @@ import com.toni.wings.WingsMod;
 import com.toni.wings.client.flight.FlightViews;
 import com.toni.wings.client.model.ModelWingsAvian;
 import com.toni.wings.client.model.ModelWingsInsectoid;
+import com.toni.wings.server.item.WingsArmorItem;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,6 +14,8 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -42,7 +45,8 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
                     VertexConsumer builder = buffer.getBuffer(form.getRenderType());
                     matrixStack.pushPose();
                     this.transform.apply(player, matrixStack);
-                    form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F, delta);
+                    float[] color = getWingTint(player);
+                    form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F, delta);
                     matrixStack.popPose();
                 });
             });
@@ -68,5 +72,17 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
     @FunctionalInterface
     public interface TransformFunction {
         void apply(LivingEntity player, PoseStack stack);
+    }
+
+    private static float[] getWingTint(LivingEntity player) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (chest.getItem() instanceof WingsArmorItem wingsItem) {
+            int color = wingsItem.getColor(chest);
+            float red = ((color >> 16) & 0xFF) / 255.0F;
+            float green = ((color >> 8) & 0xFF) / 255.0F;
+            float blue = (color & 0xFF) / 255.0F;
+            return new float[]{red, green, blue};
+        }
+        return new float[]{1.0F, 1.0F, 1.0F};
     }
 }

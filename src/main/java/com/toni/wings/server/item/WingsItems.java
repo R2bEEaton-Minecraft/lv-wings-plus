@@ -7,6 +7,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
@@ -40,6 +41,14 @@ public final class WingsItems {
     public static final RegistryObject<Item> LVJIA_SUPER_WINGS_BOTTLE = REG.register("lvjia_super_wings_bottle", bottle(() -> WingsMod.LVJIA_SUPER_WINGS));
     //public static final RegistryObject<Item> METALLIC_WINGS_BOTTLE = REG.register("metallic_wings_bottle", bottle(() -> WingsMod.METALLIC_WINGS));
 
+    public static final RegistryObject<Item> WINGS = REG.register("wings",
+        () -> new WingsArmorItem(
+            WingsArmorMaterial.HIDDEN,
+            ArmorItem.Type.CHESTPLATE,
+            new Item.Properties().stacksTo(1),
+            WingsMod.ANGEL_WINGS,
+            0xFFFFFF
+        ));
 
     private static Supplier<Item> bottle(Supplier<FlightApparatus> wings) {
         return () -> new WingsBottleItem(new Item.Properties()
@@ -62,6 +71,8 @@ public final class WingsItems {
             event.accept(EVIL_WINGS_BOTTLE.get());
             event.accept(DRAGON_WINGS_BOTTLE.get());
             event.accept(LVJIA_SUPER_WINGS_BOTTLE.get());
+        } else if (tabKey == CreativeModeTabs.COMBAT) {
+            event.accept(WINGS.get());
         }
     }
 

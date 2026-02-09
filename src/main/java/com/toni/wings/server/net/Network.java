@@ -3,6 +3,8 @@ package com.toni.wings.server.net;
 import com.toni.wings.WingsMod;
 import com.toni.wings.server.net.clientbound.MessageSyncFlight;
 import com.toni.wings.server.net.serverbound.MessageControlFlying;
+import com.toni.wings.server.net.serverbound.MessageSetFloating;
+import com.toni.wings.server.net.serverbound.MessageSetFlightPose;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.PacketDistributor;
@@ -10,8 +12,10 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class Network {
     private final SimpleChannel network = new NetBuilder(WingsMod.locate("net"))
-        .version(1).optionalServer().requiredClient()
+        .version(2).optionalServer().requiredClient()
         .serverbound(MessageControlFlying::new).consumer(() -> MessageControlFlying::handle)
+        .serverbound(MessageSetFlightPose::new).consumer(() -> MessageSetFlightPose::handle)
+        .serverbound(MessageSetFloating::new).consumer(() -> MessageSetFloating::handle)
         .clientbound(MessageSyncFlight::new).consumer(() -> MessageSyncFlight::handle)
         .build();
 

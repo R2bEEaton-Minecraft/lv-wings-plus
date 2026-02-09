@@ -11,18 +11,23 @@ import com.toni.wings.server.asm.ApplyPlayerRotationsEvent;
 import com.toni.wings.server.asm.EmptyOffHandPresentEvent;
 import com.toni.wings.server.asm.GetCameraEyeHeightEvent;
 import com.toni.wings.server.flight.Flights;
+import com.toni.wings.server.flight.FlightPose;
 import com.toni.wings.util.MathH;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.player.CameraType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -32,8 +37,24 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = WingsMod.ID)
 public final class ClientEventHandler {
     private static ResourceKey<Level> lastPlayerDimension;
+    private static final int POSE_PREVIEW_TICKS = 20;
+    private static final int POSE_FADE_OUT_TICKS = 8;
+    private static final int POSE_FADE_IN_TICKS = 6;
+    private static int posePreviewTicks;
+    private static int poseFadeInTicks;
+    private static CameraType posePreviewPrevCamera;
 
     private ClientEventHandler() {
+    }
+
+    public static void beginPosePreview() {
+        Minecraft mc = Minecraft.getInstance();
+        if (posePreviewTicks <= 0) {
+            posePreviewPrevCamera = mc.options.getCameraType();
+        }
+        mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        posePreviewTicks = POSE_PREVIEW_TICKS;
+        poseFadeInTicks = 0;
     }
 
     @SubscribeEvent
@@ -46,6 +67,23 @@ public final class ClientEventHandler {
             lastPlayerDimension = null;
             return;
         }
+        if (posePreviewTicks > 0) {
+            posePreviewTicks--;
+            if (posePreviewTicks == 0) {
+                CameraType fallback = posePreviewPrevCamera == null ? CameraType.FIRST_PERSON : posePreviewPrevCamera;
+                Minecraft.getInstance().options.setCameraType(fallback);
+                posePreviewPrevCamera = null;
+                poseFadeInTicks = POSE_FADE_IN_TICKS;
+            }
+        } else if (poseFadeInTicks > 0) {
+            poseFadeInTicks--;
+        }
+        Flights.get(player).ifPresent(flight -> {
+            if (flight.isFloating() && isMovementKeyDown()) {
+                flight.setFloating(false);
+                WingsMod.instance().network().sendToServer(new com.toni.wings.server.net.serverbound.MessageSetFloating(false));
+            }
+        });
         ResourceKey<Level> current = player.level().dimension();
         if (current != lastPlayerDimension) {
             lastPlayerDimension = current;
@@ -63,8 +101,7 @@ public final class ClientEventHandler {
             PlayerModel<?> model = event.getModel();
             float pitch = event.getPitch();
             model.head.xRot = MathH.toRadians(MathH.lerp(pitch, pitch / 4.0F - 90.0F, amt));
-            model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, -3.2F, amt);
-            model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, -3.2F, amt);
+            applyFlightPose(model, player, flight.getPose(), amt);
             model.leftLeg.xRot = MathH.lerp(model.leftLeg.xRot, 0.0F, amt);
             model.rightLeg.xRot = MathH.lerp(model.rightLeg.xRot, 0.0F, amt);
             model.hat.copyFrom(model.head);
@@ -124,6 +161,29 @@ public final class ClientEventHandler {
     }
 
     @SubscribeEvent
+    public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Pre event) {
+        if (posePreviewTicks <= 0 && poseFadeInTicks <= 0) {
+            return;
+        }
+        if (event.getOverlay() != VanillaGuiOverlay.ALL) {
+            return;
+        }
+        float alpha;
+        if (posePreviewTicks > 0 && posePreviewTicks <= POSE_FADE_OUT_TICKS) {
+            alpha = (POSE_FADE_OUT_TICKS - posePreviewTicks + 1) / (float) POSE_FADE_OUT_TICKS;
+        } else if (poseFadeInTicks > 0) {
+            alpha = poseFadeInTicks / (float) POSE_FADE_IN_TICKS;
+        } else {
+            return;
+        }
+        int a = Mth.clamp((int) (alpha * 160.0F), 0, 255);
+        int color = (a << 24);
+        int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+        int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+        event.getGuiGraphics().fill(0, 0, width, height, color);
+    }
+
+    @SubscribeEvent
     public static void onEmptyOffHandPresentEvent(EmptyOffHandPresentEvent event) {
         Flights.get(event.getPlayer()).ifPresent(flight -> {
             if (flight.isFlying()) {
@@ -146,5 +206,48 @@ public final class ClientEventHandler {
             AbstractClientPlayer player = (AbstractClientPlayer) entity;
             FlightViews.get(player).ifPresent(FlightView::tick);
         }
+    }
+
+    private static void applyFlightPose(PlayerModel<?> model, Player player, FlightPose pose, float amt) {
+        if (pose == null) {
+            pose = FlightPose.DEFAULT;
+        }
+        switch (pose) {
+            case MAIN_HAND_FORWARD -> {
+                HumanoidArm main = player.getMainArm();
+                if (main == HumanoidArm.RIGHT) {
+                    model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, -3.2F, amt);
+                    model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, -0.6F, amt);
+                    model.leftArm.zRot = MathH.lerp(model.leftArm.zRot, 0.15F, amt);
+                } else {
+                    model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, -3.2F, amt);
+                    model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, -0.6F, amt);
+                    model.rightArm.zRot = MathH.lerp(model.rightArm.zRot, -0.15F, amt);
+                }
+            }
+            case HANDS_AT_SIDES -> {
+                model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, 0.1F, amt);
+                model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, 0.1F, amt);
+                model.leftArm.zRot = MathH.lerp(model.leftArm.zRot, 0.6F, amt);
+                model.rightArm.zRot = MathH.lerp(model.rightArm.zRot, -0.6F, amt);
+            }
+            default -> {
+                model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, -3.2F, amt);
+                model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, -3.2F, amt);
+            }
+        }
+    }
+
+    private static boolean isMovementKeyDown() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.options == null) {
+            return false;
+        }
+        return mc.options.keyUp.isDown()
+            || mc.options.keyDown.isDown()
+            || mc.options.keyLeft.isDown()
+            || mc.options.keyRight.isDown()
+            || mc.options.keyJump.isDown()
+            || mc.options.keyShift.isDown();
     }
 }

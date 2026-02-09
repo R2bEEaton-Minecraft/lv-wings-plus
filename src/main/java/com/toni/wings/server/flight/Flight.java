@@ -24,6 +24,22 @@ public interface Flight {
 
     int getTimeFlying();
 
+    default void setPose(FlightPose pose) {
+        this.setPose(pose, PlayerSet.empty());
+    }
+
+    void setPose(FlightPose pose, PlayerSet players);
+
+    FlightPose getPose();
+
+    default void setFloating(boolean floating) {
+        this.setFloating(floating, PlayerSet.empty());
+    }
+
+    void setFloating(boolean floating, PlayerSet players);
+
+    boolean isFloating();
+
     default void setWing(FlightApparatus wing) {
         this.setWing(wing, PlayerSet.empty());
     }
