@@ -61,6 +61,39 @@ Brewing steps:
 2. Put the corresponding ingredient into the top slot.
 3. Wait for brewing to complete to obtain the wing potion.
 
+## Custom Changes (1.20.1)
+
+This section documents the custom changes added in this fork.
+
+### Wearable Wings Item
+- Added a new `Wings` chest item that equips angel wings when worn and removes them when unequipped.
+- The item is dyeable in the crafting grid (like leather armor). The dye color tints the wing model.
+- The chest armor model is hidden, so only the wings are visible.
+- Wings are crafted by surrounding an Elytra with 4 Angel Wings Bottles.
+
+Usage:
+- Equip `Wings` in the chest slot to enable flight and render angel wings.
+- Combine `Wings` with any dye in a crafting grid to recolor.
+
+### Flight Poses
+- Added a pose cycle with three styles:
+  - Default (both arms forward)
+  - Main-hand forward
+  - Hands at sides
+- Pose changes are only allowed while flying or hovering.
+- A small inventory-style paper-doll preview appears briefly when the pose changes.
+
+Usage:
+- Press `G` while flying/hovering to cycle poses.
+
+### Hover Mode
+- Added hover mode to hold position midair with wing flapping.
+- Hover auto-disables when movement keys are pressed (WASD, Space, Shift).
+
+Usage:
+- Press `H` to toggle hover.
+- Press any movement key to exit hover.
+
 ## 介绍
 
 这个版本的 Wings 是一个由社区开发的延续项目，最初由 pau101 启动，后来由 jt789 移植到 Minecraft 1.18.2。当你饮用翅膀药水时，会获得具有独特属性的不同类型翅膀。
@@ -99,34 +132,66 @@ Brewing steps:
 2. 在上方槽位放入对应的材料
 3. 等待酿造完成即可获得对应的翅膀药水
 
-## Custom Changes (1.20.1)
+## 自定义改动 (1.20.1)
 
-This section documents the custom changes added in this fork.
+本节记录此分支版本中添加的自定义改动。
 
-### Wearable Wings Item
-- Added a new `Wings` chest item that equips angel wings when worn and removes them when unequipped.
-- The item is dyeable in the crafting grid (like leather armor). The dye color tints the wing model.
-- The chest armor model is hidden, so only the wings are visible.
+### 可穿戴翅膀物品
+- 添加了一个新的胸部装备物品“翅膀”，穿戴后会显示天使翅膀，卸下后则会移除。
+- 该物品可在合成台中染色（类似于皮革盔甲）。染料颜色会影响翅膀模型的颜色。
+- 胸部盔甲模型会被隐藏，因此只会显示翅膀
+- 翅膀的制作方法是：用四个天使之翼药水瓶围绕一个鞘翅。
 
-Usage:
-- Equip `Wings` in the chest slot to enable flight and render angel wings.
-- Combine `Wings` with any dye in a crafting grid to recolor.
+使用方法：
+- 将“翅膀”装备到胸部槽位即可启用飞行并显示天使翅膀。
+- 在合成台中将“翅膀”与任何染料组合即可更改颜色。
 
-### Flight Poses
-- Added a pose cycle with three styles:
-  - Default (both arms forward)
-  - Main-hand forward
-  - Hands at sides
-- Pose changes are only allowed while flying or hovering.
-- A small inventory-style paper-doll preview appears briefly when the pose changes.
+### 飞行姿势
+- 添加了三种飞行姿势：
+  - 默认（双臂向前）
+  - 主手向前
+  - 双手放在两侧
+- 姿势切换仅在飞行或悬停状态下有效。
+- 切换姿势时，屏幕上会短暂显示一个类似物品栏界面的小人偶预览。
 
-Usage:
-- Press `G` while flying/hovering to cycle poses.
+使用方法：
+- 在飞行/悬停状态下按 `G` 键切换姿势。
 
-### Hover Mode
-- Added hover mode to hold position midair with wing flapping.
-- Hover auto-disables when movement keys are pressed (WASD, Space, Shift).
+### 悬停模式
+- 添加了悬停模式，可在空中保持位置并扇动翅膀。
+- 按下移动键（WASD、空格、Shift）时，悬停模式会自动禁用。
 
-Usage:
-- Press `H` to toggle hover.
-- Press any movement key to exit hover.
+使用方法：
+- 按 `H` 键切换悬停模式。
+- 按任意移动键退出悬停模式。
+## Zì dìngyì gǎidòng (1.20.1)
+
+Běn jié jìlù cǐ fēnzhī bǎnběn zhōng tiānjiā de zì dìngyì gǎidòng.
+
+### Kě chuāndài chìbǎng wùpǐn
+- tiānjiāle yīgè xīn de xiōngbù zhuāngbèi wùpǐn “chìbǎng”, chuāndài hòu huì xiǎnshì tiānshǐ chìbǎng, xiè xià hòu zé huì yí chú.
+- Gāi wùpǐn kě zài héchéng táizhōng rǎnsè (lèisì yú pígé kuījiǎ). Rǎnliào yánsè huì yǐngxiǎng chìbǎng móxíng de yánsè.
+- Xiōngbù kuījiǎ móxíng huì bèi yǐncáng, yīncǐ zhǐ huì xiǎnshì chìbǎng.
+
+Shǐyòng fāngfǎ:
+- Jiāng “chìbǎng” zhuāngbèi dào xiōngbù cáo wèi jí kě qǐyòng fēi háng bìng xiǎnshì tiānshǐ chìbǎng.
+- Zài héchéng táizhōng jiàng “chìbǎng” yǔ rènhé rǎnliào zǔhé jí kě gēnggǎi yánsè.
+
+### Fēixíng zīshì
+- tiānjiāle sān zhǒng fēixíng zīshì:
+  - Mòrèn (shuāng bì xiàng qián)
+  - zhǔ shǒu xiàng qián
+  - shuāngshǒu fàng zài liǎng cè
+- zīshì qiēhuàn jǐn zài fēixíng huò xuán tíng zhuàngtài xià yǒuxiào.
+- Qiēhuàn zīshì shí, píngmù shàng huì duǎnzàn xiǎnshì yīgè lèisì wùpǐn lán jièmiàn de xiǎo rén ǒu yùlǎn.
+
+Shǐyòng fāngfǎ:
+- Zài fēixíng/xuán tíng zhuàngtài xià àn `G`jiàn qiēhuàn zīshì.
+
+### Xuán tíng móshì
+- tiānjiāle xuán tíng móshì, kě zài kōngzhōng bǎochí wèizhì bìng shāndòng chìbǎng.
+- Àn xià yídòng jiàn (WASD, kònggé,Shift) shí, xuán tíng móshì huì zìdòng jìnyòng.
+
+Shǐyòng fāngfǎ:
+- Àn `H`jiàn qiēhuàn xuán tíng móshì.
+- Àn rènyì yídòng jiàn tuìchū xuán tíng móshì.

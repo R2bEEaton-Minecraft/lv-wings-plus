@@ -45,3 +45,36 @@ Brewing steps:
 1. Place a Slow Falling potion into the Brewing Stand as the base.
 2. Put the corresponding ingredient into the top slot.
 3. Wait for brewing to complete to obtain the wing potion.
+
+## Custom Changes (1.20.1)
+
+This section documents the custom changes added in this fork.
+
+### Wearable Wings Item
+- Added a new `Wings` chest item that equips angel wings when worn and removes them when unequipped.
+- The item is dyeable in the crafting grid (like leather armor). The dye color tints the wing model.
+- The chest armor model is hidden, so only the wings are visible.
+- Wings are crafted by surrounding an Elytra with 4 Angel Wings Bottles.
+
+Usage:
+- Equip `Wings` in the chest slot to enable flight and render angel wings.
+- Combine `Wings` with any dye in a crafting grid to recolor.
+
+### Flight Poses
+- Added a pose cycle with three styles:
+  - Default (both arms forward)
+  - Main-hand forward
+  - Hands at sides
+- Pose changes are only allowed while flying or hovering.
+- A small inventory-style paper-doll preview appears briefly when the pose changes.
+
+Usage:
+- Press `G` while flying/hovering to cycle poses.
+
+### Hover Mode
+- Added hover mode to hold position midair with wing flapping.
+- Hover auto-disables when movement keys are pressed (WASD, Space, Shift).
+
+Usage:
+- Press `H` to toggle hover.
+- Press any movement key to exit hover.
