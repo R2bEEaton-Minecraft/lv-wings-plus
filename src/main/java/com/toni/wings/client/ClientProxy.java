@@ -7,6 +7,7 @@ import com.toni.wings.client.flight.Animator;
 import com.toni.wings.client.flight.AnimatorAvian;
 import com.toni.wings.client.flight.AnimatorInsectoid;
 import com.toni.wings.client.flight.FlightView;
+import com.toni.wings.client.gui.WingsClientConfigScreen;
 import com.toni.wings.client.model.ModelWings;
 import com.toni.wings.client.model.ModelWingsAvian;
 import com.toni.wings.client.model.ModelWingsInsectoid;
@@ -27,12 +28,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Supplier;
@@ -43,9 +46,14 @@ public final class ClientProxy extends Proxy {
     private static ModelWings<AnimatorAvian> avianWings;
 
 
+    @SuppressWarnings("removal")
     @Override
     public void init(IEventBus modBus) {
         super.init(modBus);
+        ModLoadingContext.get().registerExtensionPoint(
+            ConfigScreenHandler.ConfigScreenFactory.class,
+            () -> new ConfigScreenHandler.ConfigScreenFactory(WingsClientConfigScreen::new)
+        );
     LayerWings.init(modBus);
         //modBus.register(BakeModels.class);
         MinecraftForge.EVENT_BUS.register(KeyInputListener.builder()

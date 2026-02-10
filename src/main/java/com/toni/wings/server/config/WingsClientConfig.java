@@ -25,6 +25,11 @@ public final class WingsClientConfig {
         return ENABLE_POSE_PREVIEW.get();
     }
 
+    public static void setPosePreviewEnabled(boolean enabled) {
+        ENABLE_POSE_PREVIEW.set(enabled);
+        ENABLE_POSE_PREVIEW.save();
+    }
+
     public static void validate() {
         isPosePreviewEnabled();
     }
