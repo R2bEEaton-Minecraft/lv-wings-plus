@@ -1,5 +1,8 @@
 package com.toni.wings.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.toni.wings.client.renderer.SodiumBypassVertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
 
@@ -109,6 +112,12 @@ public final class Model3DTexture extends ModelPart.Cube {
     interface FaceAdder {
         void add(float x, float y, float z, float x2, float y2, float z2, float u1, float v1, float u2, float v2, Direction normal);
     }
+
+    @Override
+    public void compile(PoseStack.Pose pose, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        super.compile(pose, SodiumBypassVertexConsumer.wrap(buffer), packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
     public static ModelPart.Cube create(
         float posX, float posY, float posZ,
         int width, int height,

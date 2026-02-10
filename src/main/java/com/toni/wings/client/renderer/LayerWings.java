@@ -42,7 +42,7 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
         if (!player.isInvisible()) {
             FlightViews.get(player).ifPresent(flight -> {
                 flight.ifFormPresent(form -> {
-                    VertexConsumer builder = buffer.getBuffer(form.getRenderType());
+                    VertexConsumer builder = SodiumBypassVertexConsumer.wrap(buffer.getBuffer(form.getRenderType()));
                     matrixStack.pushPose();
                     this.transform.apply(player, matrixStack);
                     float[] color = getWingTint(player);
