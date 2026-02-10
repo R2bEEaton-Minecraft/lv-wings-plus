@@ -42,12 +42,13 @@ public final class ClientEventHandler {
     private static final int POSE_PREVIEW_TICKS = 30;
     private static final int POSE_FADE_OUT_TICKS = 30;
     private static int posePreviewTicks;
+    private static boolean renderingPosePreview;
 
     private ClientEventHandler() {
     }
 
     public static void beginPosePreview() {
-        if (!WingsClientConfig.isPosePreviewEnabled()) {
+        if (!WingsClientConfig.isPosePreviewEnabled() || !isFirstPersonCamera()) {
             posePreviewTicks = 0;
             return;
         }
@@ -59,12 +60,13 @@ public final class ClientEventHandler {
         if (event.phase != TickEvent.Phase.END) {
             return;
         }
-        LocalPlayer player = Minecraft.getInstance().player;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
         if (player == null) {
             lastPlayerDimension = null;
             return;
         }
-        if (!WingsClientConfig.isPosePreviewEnabled()) {
+        if (!WingsClientConfig.isPosePreviewEnabled() || !isFirstPersonCamera()) {
             posePreviewTicks = 0;
         } else if (posePreviewTicks > 0) {
             posePreviewTicks--;
@@ -158,6 +160,10 @@ public final class ClientEventHandler {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
+        if (!isFirstPersonCamera()) {
+            posePreviewTicks = 0;
+            return;
+        }
         LocalPlayer player = mc.player;
         if (player == null) {
             return;
@@ -173,8 +179,13 @@ public final class ClientEventHandler {
             alpha = Mth.clamp(posePreviewTicks / (float) POSE_FADE_OUT_TICKS, 0.0F, 1.0F);
         }
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(gui, x, y, scale, 20.0F, 20.0F, player);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        renderingPosePreview = true;
+        try {
+            InventoryScreen.renderEntityInInventoryFollowsMouse(gui, x, y, scale, 20.0F, 20.0F, player);
+        } finally {
+            renderingPosePreview = false;
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        }
     }
 
     @SubscribeEvent
@@ -257,9 +268,16 @@ public final class ClientEventHandler {
     }
 
     private static boolean isLocalFirstPerson(Player player) {
+        if (renderingPosePreview) {
+            return false;
+        }
         if (!(player instanceof LocalPlayer localPlayer) || !localPlayer.isLocalPlayer()) {
             return false;
         }
+        return isFirstPersonCamera();
+    }
+
+    private static boolean isFirstPersonCamera() {
         Minecraft mc = Minecraft.getInstance();
         return mc != null && mc.options != null && mc.options.getCameraType().isFirstPerson();
     }
