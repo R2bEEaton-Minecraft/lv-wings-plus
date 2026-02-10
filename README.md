@@ -76,12 +76,14 @@ Usage:
 - Combine `Wings` with any dye in a crafting grid to recolor.
 
 ### Flight Poses
-- Added a pose cycle with three styles:
+- Added a pose cycle with four styles:
   - Default (both arms forward)
   - Main-hand forward
   - Hands at sides
+  - Hands at sides (outward)
 - Pose changes are only allowed while flying or hovering.
-- A small inventory-style paper-doll preview appears briefly when the pose changes.
+- The pose preview overlay is disabled by default. Enable it in the mod config screen (`ESC -> Mods -> Wings -> Config`) via `client.enablePosePreview`.
+- When enabled, a small inventory-style paper-doll preview appears briefly when the pose changes.
 
 Usage:
 - Press `G` while flying/hovering to cycle poses.

@@ -5,7 +5,8 @@ import java.util.Locale;
 public enum FlightPose {
     DEFAULT("default"),
     MAIN_HAND_FORWARD("main_hand_forward"),
-    HANDS_AT_SIDES("hands_at_sides");
+    HANDS_AT_SIDES("hands_at_sides"),
+    HANDS_AT_SIDES_OUT("hands_at_sides_out");
 
     private final String id;
 

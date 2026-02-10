@@ -25,6 +25,8 @@ public final class WingsConfigEvents {
         Object spec = config.getSpec();
         if (spec == WingsConfig.SPEC) {
             WingsConfig.validate();
+        } else if (spec == WingsClientConfig.SPEC) {
+            WingsClientConfig.validate();
         } else if (spec == WingsItemsConfig.SPEC) {
             WingsItemsConfig.validate();
         } else if (spec == WingsOreConfig.SPEC) {

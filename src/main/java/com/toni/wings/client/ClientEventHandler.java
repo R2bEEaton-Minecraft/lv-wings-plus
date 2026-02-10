@@ -12,6 +12,7 @@ import com.toni.wings.server.asm.EmptyOffHandPresentEvent;
 import com.toni.wings.server.asm.GetCameraEyeHeightEvent;
 import com.toni.wings.server.flight.Flights;
 import com.toni.wings.server.flight.FlightPose;
+import com.toni.wings.server.config.WingsClientConfig;
 import com.toni.wings.util.MathH;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -46,6 +47,10 @@ public final class ClientEventHandler {
     }
 
     public static void beginPosePreview() {
+        if (!WingsClientConfig.isPosePreviewEnabled()) {
+            posePreviewTicks = 0;
+            return;
+        }
         posePreviewTicks = POSE_PREVIEW_TICKS;
     }
 
@@ -59,7 +64,9 @@ public final class ClientEventHandler {
             lastPlayerDimension = null;
             return;
         }
-        if (posePreviewTicks > 0) {
+        if (!WingsClientConfig.isPosePreviewEnabled()) {
+            posePreviewTicks = 0;
+        } else if (posePreviewTicks > 0) {
             posePreviewTicks--;
         }
         Flights.get(player).ifPresent(flight -> {
@@ -82,6 +89,7 @@ public final class ClientEventHandler {
             float delta = event.getTicksExisted() - player.tickCount;
             float amt = flight.getFlyingAmount(delta);
             if (amt == 0.0F) return;
+            if (isLocalFirstPerson(player)) return;
             PlayerModel<?> model = event.getModel();
             float pitch = event.getPitch();
             model.head.xRot = MathH.toRadians(MathH.lerp(pitch, pitch / 4.0F - 90.0F, amt));
@@ -146,7 +154,7 @@ public final class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        if (posePreviewTicks <= 0) {
+        if (!WingsClientConfig.isPosePreviewEnabled() || posePreviewTicks <= 0) {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -171,6 +179,9 @@ public final class ClientEventHandler {
 
     @SubscribeEvent
     public static void onEmptyOffHandPresentEvent(EmptyOffHandPresentEvent event) {
+        if (isLocalFirstPerson(event.getPlayer())) {
+            return;
+        }
         Flights.get(event.getPlayer()).ifPresent(flight -> {
             if (flight.isFlying()) {
                 event.setResult(Event.Result.ALLOW);
@@ -217,6 +228,14 @@ public final class ClientEventHandler {
                 model.leftArm.zRot = MathH.lerp(model.leftArm.zRot, 0.6F, amt);
                 model.rightArm.zRot = MathH.lerp(model.rightArm.zRot, -0.6F, amt);
             }
+            case HANDS_AT_SIDES_OUT -> {
+                model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, 0.15F, amt);
+                model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, 0.15F, amt);
+                model.leftArm.yRot = MathH.lerp(model.leftArm.yRot, 0.4F, amt);
+                model.rightArm.yRot = MathH.lerp(model.rightArm.yRot, -0.4F, amt);
+                model.leftArm.zRot = MathH.lerp(model.leftArm.zRot, 0.2F, amt);
+                model.rightArm.zRot = MathH.lerp(model.rightArm.zRot, -0.2F, amt);
+            }
             default -> {
                 model.leftArm.xRot = MathH.lerp(model.leftArm.xRot, -3.2F, amt);
                 model.rightArm.xRot = MathH.lerp(model.rightArm.xRot, -3.2F, amt);
@@ -235,5 +254,13 @@ public final class ClientEventHandler {
             || mc.options.keyRight.isDown()
             || mc.options.keyJump.isDown()
             || mc.options.keyShift.isDown();
+    }
+
+    private static boolean isLocalFirstPerson(Player player) {
+        if (!(player instanceof LocalPlayer localPlayer) || !localPlayer.isLocalPlayer()) {
+            return false;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        return mc != null && mc.options != null && mc.options.getCameraType().isFirstPerson();
     }
 }

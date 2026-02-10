@@ -7,6 +7,7 @@ import com.toni.wings.server.apparatus.BuffedFlightApparatus;
 import com.toni.wings.server.apparatus.FlightApparatus;
 import com.toni.wings.server.apparatus.SimpleFlightApparatus;
 import com.toni.wings.server.config.WingsConfig;
+import com.toni.wings.server.config.WingsClientConfig;
 import com.toni.wings.server.config.WingsItemsConfig;
 import com.toni.wings.server.config.WingsOreConfig;
 import com.toni.wings.server.effect.WingsEffects;
@@ -75,6 +76,7 @@ public final class WingsMod {
         INSTANCE = this;
         IEventBus bus = getModEventBus();
     ModLoadingContext context = getModLoadingContext();
+    context.registerConfig(ModConfig.Type.CLIENT, WingsClientConfig.SPEC, ID + "-client.toml");
     context.registerConfig(ModConfig.Type.COMMON, WingsConfig.SPEC, ID + "-common.toml");
     context.registerConfig(ModConfig.Type.COMMON, WingsItemsConfig.SPEC, ID + "-items.toml");
     context.registerConfig(ModConfig.Type.COMMON, WingsOreConfig.SPEC, ID + "-ores.toml");
