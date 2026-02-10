@@ -208,7 +208,7 @@ public final class ModelWingsAvian extends ModelWings<AnimatorAvian> {
         private static List<ModelPart.Cube> getCubes(ModelPart part) {
                 try {
                         List<ModelPart.Cube> cubes = (List<ModelPart.Cube>) CUBES_FIELD.get(part);
-                        if (cubes instanceof ImmutableList) {
+                        if (!(cubes instanceof ArrayList)) {
                                 cubes = new ArrayList<>(cubes);
                                 CUBES_FIELD.set(part, cubes);
                         }
