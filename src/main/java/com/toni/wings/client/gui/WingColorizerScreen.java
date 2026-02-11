@@ -37,33 +37,33 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private static final int PART_BUTTON_HEIGHT = 16;
 
     private static final int PREVIEW_X = 8;
-    private static final int PREVIEW_Y = 64;
+    private static final int PREVIEW_Y = 60;
     private static final int PREVIEW_WIDTH = 40;
-    private static final int PREVIEW_HEIGHT = 58;
+    private static final int PREVIEW_HEIGHT = 56;
 
     private static final int SV_X = 52;
     private static final int SV_Y = 66;
-    private static final int SV_WIDTH = 110;
+    private static final int SV_WIDTH = 96;
     private static final int SV_HEIGHT = 70;
 
-    private static final int HUE_X = 166;
+    private static final int HUE_X = 152;
     private static final int HUE_Y = 66;
-    private static final int HUE_WIDTH = 12;
+    private static final int HUE_WIDTH = 10;
     private static final int HUE_HEIGHT = 70;
 
-    private static final int HEX_X = 180;
-    private static final int HEX_Y = 38;
-    private static final int HEX_WIDTH = 74;
+    private static final int HEX_X = 170;
+    private static final int HEX_Y = 34;
+    private static final int HEX_WIDTH = 78;
     private static final int HEX_HEIGHT = 20;
 
-    private static final int APPLY_X = 180;
+    private static final int APPLY_X = 170;
     private static final int APPLY_Y = 62;
-    private static final int APPLY_WIDTH = 74;
+    private static final int APPLY_WIDTH = 78;
     private static final int APPLY_HEIGHT = 20;
 
-    private static final int CANCEL_X = 180;
+    private static final int CANCEL_X = 170;
     private static final int CANCEL_Y = 86;
-    private static final int CANCEL_WIDTH = 74;
+    private static final int CANCEL_WIDTH = 78;
     private static final int CANCEL_HEIGHT = 20;
 
     private static final int[] DEFAULT_COLORS = new int[]{0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF};
@@ -156,7 +156,6 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             guiGraphics.fill(slotX, slotY, slotX + 16, slotY + 16, 0xFF000000 | SLOT_COLOR);
         }
 
-        this.drawPartSwatches(guiGraphics, x0, y0);
         this.drawSaturationValuePicker(guiGraphics, x0 + SV_X, y0 + SV_Y);
         this.drawHueSlider(guiGraphics, x0 + HUE_X, y0 + HUE_Y);
         this.drawPickerCursors(guiGraphics, x0, y0);
@@ -166,7 +165,6 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, 8, 6, 0xFFFFFF, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFFFFFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.selected", this.selectedPart.label()), 52, 47, 0xE4E4E4, false);
         guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.hex"), HEX_X, 28, 0xE4E4E4, false);
     }
 
@@ -228,19 +226,6 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         }
     }
 
-    private void drawPartSwatches(GuiGraphics guiGraphics, int x0, int y0) {
-        int y = y0 + 58;
-        this.drawSwatch(guiGraphics, x0 + 52, y, this.draftColors[WingPart.LEFT_STEM.index()]);
-        this.drawSwatch(guiGraphics, x0 + 103, y, this.draftColors[WingPart.RIGHT_STEM.index()]);
-        this.drawSwatch(guiGraphics, x0 + 154, y, this.draftColors[WingPart.LEFT_FEATHERS.index()]);
-        this.drawSwatch(guiGraphics, x0 + 205, y, this.draftColors[WingPart.RIGHT_FEATHERS.index()]);
-    }
-
-    private void drawSwatch(GuiGraphics guiGraphics, int x, int y, int color) {
-        drawRectBorder(guiGraphics, x, y, PART_BUTTON_WIDTH, 5, 0xFFBEBEBE);
-        guiGraphics.fill(x + 1, y + 1, x + PART_BUTTON_WIDTH - 1, y + 4, 0xFF000000 | color);
-    }
-
     private void drawSaturationValuePicker(GuiGraphics guiGraphics, int x, int y) {
         for (int dx = 0; dx < SV_WIDTH; dx++) {
             float sat = dx / (float) (SV_WIDTH - 1);
@@ -284,11 +269,11 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             RenderSystem.enableDepthTest();
 
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 8.0F, 250.0F);
-            guiGraphics.pose().scale(-14.0F, 14.0F, 14.0F);
-            guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(-8.0F));
+            guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 10.0F, 250.0F);
+            guiGraphics.pose().scale(18.0F, -18.0F, 18.0F);
             guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(180.0F));
-            guiGraphics.pose().translate(0.0F, -0.35F, 0.0F);
+            guiGraphics.pose().mulPose(Axis.ZP.rotationDegrees(180.0F));
+            guiGraphics.pose().translate(0.0F, -0.26F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
             model.renderPartColors(
