@@ -37,9 +37,9 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private static final int PART_BUTTON_HEIGHT = 16;
 
     private static final int PREVIEW_X = 8;
-    private static final int PREVIEW_Y = 60;
+    private static final int PREVIEW_Y = 64;
     private static final int PREVIEW_WIDTH = 40;
-    private static final int PREVIEW_HEIGHT = 70;
+    private static final int PREVIEW_HEIGHT = 58;
 
     private static final int SV_X = 52;
     private static final int SV_Y = 66;
@@ -80,7 +80,6 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private boolean updatingHex;
     private ItemStack lastSyncedStack = ItemStack.EMPTY;
     private final AnimatorAvian previewAnimator = new AnimatorAvian();
-    private float previewYaw;
 
     private EditBox hexField;
     private Button applyButton;
@@ -130,8 +129,6 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         super.containerTick();
         this.syncFromWingStack(false);
         this.applyButton.active = this.menu.hasEditableWing();
-        this.previewAnimator.update();
-        this.previewYaw = (this.previewYaw + 1.2F) % 360.0F;
     }
 
     @Override
@@ -169,7 +166,7 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, 8, 6, 0xFFFFFF, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFFFFFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.selected", this.selectedPart.label()), 52, 54, 0xE4E4E4, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.selected", this.selectedPart.label()), 52, 47, 0xE4E4E4, false);
         guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.hex"), HEX_X, 28, 0xE4E4E4, false);
     }
 
@@ -277,13 +274,7 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         int panelY = y0 + PREVIEW_Y;
         drawRectBorder(guiGraphics, panelX, panelY, PREVIEW_WIDTH, PREVIEW_HEIGHT, 0xFFBEBEBE);
         guiGraphics.fill(panelX + 1, panelY + 1, panelX + PREVIEW_WIDTH - 1, panelY + PREVIEW_HEIGHT - 1, 0xFF131313);
-
-        // Simple stand silhouette to anchor the wing preview visually.
         int cx = panelX + PREVIEW_WIDTH / 2;
-        int baseY = panelY + PREVIEW_HEIGHT - 8;
-        guiGraphics.fill(cx - 1, panelY + 16, cx + 1, baseY, 0xFF444444);
-        guiGraphics.fill(cx - 6, panelY + 22, cx + 6, panelY + 24, 0xFF444444);
-        guiGraphics.fill(cx - 8, baseY, cx + 8, baseY + 2, 0xFF444444);
 
         WingForm.get(WingsMod.ANGEL_WINGS).ifPresent(form -> {
             if (!(form.getModel() instanceof ModelWingsAvian model)) {
@@ -293,16 +284,16 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             RenderSystem.enableDepthTest();
 
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 14.0F, 250.0F);
-            guiGraphics.pose().scale(16.0F, -16.0F, 16.0F);
-            guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(15.0F));
-            guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(this.previewYaw + partialTick));
-            guiGraphics.pose().translate(0.0F, -0.1F, 0.0F);
+            guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 8.0F, 250.0F);
+            guiGraphics.pose().scale(-14.0F, 14.0F, 14.0F);
+            guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(-8.0F));
+            guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(180.0F));
+            guiGraphics.pose().translate(0.0F, -0.35F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
             model.renderPartColors(
                 this.previewAnimator,
-                partialTick,
+                0.0F,
                 guiGraphics.pose(),
                 source.getBuffer(form.getRenderType()),
                 LightTexture.FULL_BRIGHT,
