@@ -1,14 +1,23 @@
 package com.toni.wings.client.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Axis;
 import com.toni.wings.WingsMod;
+import com.toni.wings.client.apparatus.WingForm;
+import com.toni.wings.client.flight.AnimatorAvian;
+import com.toni.wings.client.model.ModelWingsAvian;
 import com.toni.wings.server.item.WingsArmorItem;
 import com.toni.wings.server.menu.WingColorizerMenu;
 import com.toni.wings.server.net.serverbound.MessageApplyWingColors;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -24,9 +33,13 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private static final int SLOT_COLOR = 0x262626;
 
     private static final int PART_BUTTON_Y_TOP = 18;
-    private static final int PART_BUTTON_Y_BOTTOM = 38;
     private static final int PART_BUTTON_WIDTH = 47;
     private static final int PART_BUTTON_HEIGHT = 16;
+
+    private static final int PREVIEW_X = 8;
+    private static final int PREVIEW_Y = 60;
+    private static final int PREVIEW_WIDTH = 40;
+    private static final int PREVIEW_HEIGHT = 70;
 
     private static final int SV_X = 52;
     private static final int SV_Y = 66;
@@ -66,6 +79,8 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private boolean draggingHue;
     private boolean updatingHex;
     private ItemStack lastSyncedStack = ItemStack.EMPTY;
+    private final AnimatorAvian previewAnimator = new AnimatorAvian();
+    private float previewYaw;
 
     private EditBox hexField;
     private Button applyButton;
@@ -115,6 +130,8 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         super.containerTick();
         this.syncFromWingStack(false);
         this.applyButton.active = this.menu.hasEditableWing();
+        this.previewAnimator.update();
+        this.previewYaw = (this.previewYaw + 1.2F) % 360.0F;
     }
 
     @Override
@@ -130,8 +147,10 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         int y0 = this.topPos;
         guiGraphics.fill(x0, y0, x0 + this.imageWidth, y0 + this.imageHeight, 0xFF000000 | BASE_COLOR);
         guiGraphics.fill(x0 + 4, y0 + 4, x0 + this.imageWidth - 4, y0 + this.imageHeight - 4, 0xFF000000 | PANEL_COLOR);
-        guiGraphics.fill(x0 + 8, y0 + 114, x0 + this.imageWidth - 8, y0 + this.imageHeight - 8, 0xFF1F1F1F);
+        guiGraphics.fill(x0 + 8, y0 + 132, x0 + this.imageWidth - 8, y0 + this.imageHeight - 8, 0xFF1F1F1F);
         drawRectBorder(guiGraphics, x0, y0, this.imageWidth, this.imageHeight, 0xFF000000 | BORDER_COLOR);
+
+        this.drawWingPreview(guiGraphics, partialTick, x0, y0);
 
         for (net.minecraft.world.inventory.Slot slot : this.menu.slots) {
             int slotX = x0 + slot.x;
@@ -253,6 +272,52 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         guiGraphics.fill(x0 + HUE_X - 2, hueCursorY - 1, x0 + HUE_X + HUE_WIDTH + 2, hueCursorY + 1, 0xFFFFFFFF);
     }
 
+    private void drawWingPreview(GuiGraphics guiGraphics, float partialTick, int x0, int y0) {
+        int panelX = x0 + PREVIEW_X;
+        int panelY = y0 + PREVIEW_Y;
+        drawRectBorder(guiGraphics, panelX, panelY, PREVIEW_WIDTH, PREVIEW_HEIGHT, 0xFFBEBEBE);
+        guiGraphics.fill(panelX + 1, panelY + 1, panelX + PREVIEW_WIDTH - 1, panelY + PREVIEW_HEIGHT - 1, 0xFF131313);
+
+        // Simple stand silhouette to anchor the wing preview visually.
+        int cx = panelX + PREVIEW_WIDTH / 2;
+        int baseY = panelY + PREVIEW_HEIGHT - 8;
+        guiGraphics.fill(cx - 1, panelY + 16, cx + 1, baseY, 0xFF444444);
+        guiGraphics.fill(cx - 6, panelY + 22, cx + 6, panelY + 24, 0xFF444444);
+        guiGraphics.fill(cx - 8, baseY, cx + 8, baseY + 2, 0xFF444444);
+
+        WingForm.get(WingsMod.ANGEL_WINGS).ifPresent(form -> {
+            if (!(form.getModel() instanceof ModelWingsAvian model)) {
+                return;
+            }
+            RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
+
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 14.0F, 250.0F);
+            guiGraphics.pose().scale(16.0F, -16.0F, 16.0F);
+            guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(15.0F));
+            guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(this.previewYaw + partialTick));
+            guiGraphics.pose().translate(0.0F, -0.1F, 0.0F);
+
+            MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
+            model.renderPartColors(
+                this.previewAnimator,
+                partialTick,
+                guiGraphics.pose(),
+                source.getBuffer(form.getRenderType()),
+                LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY,
+                this.getDraftPartColors(),
+                1.0F
+            );
+            source.endBatch();
+            guiGraphics.pose().popPose();
+
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableBlend();
+        });
+    }
+
     private void updateSv(double mouseX, double mouseY) {
         this.saturation = Mth.clamp((float) ((mouseX - (this.leftPos + SV_X)) / (double) (SV_WIDTH - 1)), 0.0F, 1.0F);
         this.value = 1.0F - Mth.clamp((float) ((mouseY - (this.topPos + SV_Y)) / (double) (SV_HEIGHT - 1)), 0.0F, 1.0F);
@@ -341,6 +406,15 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             this.draftColors[WingPart.LEFT_FEATHERS.index()],
             this.draftColors[WingPart.RIGHT_FEATHERS.index()]
         ));
+    }
+
+    private WingsArmorItem.PartColors getDraftPartColors() {
+        return new WingsArmorItem.PartColors(
+            this.draftColors[WingPart.LEFT_STEM.index()],
+            this.draftColors[WingPart.RIGHT_STEM.index()],
+            this.draftColors[WingPart.LEFT_FEATHERS.index()],
+            this.draftColors[WingPart.RIGHT_FEATHERS.index()]
+        );
     }
 
     private boolean isInside(double mouseX, double mouseY, int x, int y, int width, int height) {

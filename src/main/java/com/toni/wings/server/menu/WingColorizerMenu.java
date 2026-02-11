@@ -57,12 +57,12 @@ public final class WingColorizerMenu extends AbstractContainerMenu {
 
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 20 + col * 18, 118 + row * 18));
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 20 + col * 18, 136 + row * 18));
             }
         }
 
         for (int hotbar = 0; hotbar < 9; ++hotbar) {
-            this.addSlot(new Slot(playerInventory, hotbar, 20 + hotbar * 18, 176));
+            this.addSlot(new Slot(playerInventory, hotbar, 20 + hotbar * 18, 194));
         }
     }
 
