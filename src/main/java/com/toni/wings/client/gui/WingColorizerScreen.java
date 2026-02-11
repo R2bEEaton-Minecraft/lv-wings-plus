@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,10 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Locale;
 
 public final class WingColorizerScreen extends AbstractContainerScreen<WingColorizerMenu> {
-    private static final int BASE_COLOR = 0x2E2E2E;
-    private static final int PANEL_COLOR = 0x3A3A3A;
-    private static final int BORDER_COLOR = 0x8F8F8F;
-    private static final int SLOT_COLOR = 0x262626;
+    private static final ResourceLocation BG_TEXTURE = WingsMod.locate("textures/gui/wing_colorizer.png");
 
     private static final int PART_BUTTON_Y_TOP = 18;
     private static final int PART_BUTTON_WIDTH = 46;
@@ -142,19 +140,9 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     protected void renderBg(@Nonnull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int x0 = this.leftPos;
         int y0 = this.topPos;
-        guiGraphics.fill(x0, y0, x0 + this.imageWidth, y0 + this.imageHeight, 0xFF000000 | BASE_COLOR);
-        guiGraphics.fill(x0 + 4, y0 + 4, x0 + this.imageWidth - 4, y0 + this.imageHeight - 4, 0xFF000000 | PANEL_COLOR);
-        guiGraphics.fill(x0 + 8, y0 + 132, x0 + this.imageWidth - 8, y0 + this.imageHeight - 8, 0xFF1F1F1F);
-        drawRectBorder(guiGraphics, x0, y0, this.imageWidth, this.imageHeight, 0xFF000000 | BORDER_COLOR);
+        guiGraphics.blit(BG_TEXTURE, x0, y0, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 
         this.drawWingPreview(guiGraphics, partialTick, x0, y0);
-
-        for (net.minecraft.world.inventory.Slot slot : this.menu.slots) {
-            int slotX = x0 + slot.x;
-            int slotY = y0 + slot.y;
-            drawRectBorder(guiGraphics, slotX - 1, slotY - 1, 18, 18, 0xFF000000 | BORDER_COLOR);
-            guiGraphics.fill(slotX, slotY, slotX + 16, slotY + 16, 0xFF000000 | SLOT_COLOR);
-        }
 
         this.drawSaturationValuePicker(guiGraphics, x0 + SV_X, y0 + SV_Y);
         this.drawHueSlider(guiGraphics, x0 + HUE_X, y0 + HUE_Y);
@@ -257,8 +245,6 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private void drawWingPreview(GuiGraphics guiGraphics, float partialTick, int x0, int y0) {
         int panelX = x0 + PREVIEW_X;
         int panelY = y0 + PREVIEW_Y;
-        drawRectBorder(guiGraphics, panelX, panelY, PREVIEW_WIDTH, PREVIEW_HEIGHT, 0xFFBEBEBE);
-        guiGraphics.fill(panelX + 1, panelY + 1, panelX + PREVIEW_WIDTH - 1, panelY + PREVIEW_HEIGHT - 1, 0xFF131313);
         int cx = panelX + PREVIEW_WIDTH / 2;
 
         WingForm.get(WingsMod.ANGEL_WINGS).ifPresent(form -> {
@@ -270,11 +256,10 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
 
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 10.0F, 250.0F);
-            guiGraphics.pose().scale(18.0F, -18.0F, 18.0F);
+            guiGraphics.pose().scale(18.0F, 18.0F, -18.0F);
             guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(180.0F));
-            guiGraphics.pose().mulPose(Axis.ZP.rotationDegrees(0.0F));
             guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(180.0F));
-            guiGraphics.pose().translate(0.0F, -1.75F, 0.0F);
+            guiGraphics.pose().translate(0.0F, -1.15F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
             model.renderPartColors(
