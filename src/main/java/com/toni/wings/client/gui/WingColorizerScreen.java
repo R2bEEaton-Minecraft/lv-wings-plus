@@ -33,7 +33,7 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private static final int SLOT_COLOR = 0x262626;
 
     private static final int PART_BUTTON_Y_TOP = 18;
-    private static final int PART_BUTTON_WIDTH = 47;
+    private static final int PART_BUTTON_WIDTH = 46;
     private static final int PART_BUTTON_HEIGHT = 16;
 
     private static final int PREVIEW_X = 8;
@@ -42,27 +42,27 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private static final int PREVIEW_HEIGHT = 56;
 
     private static final int SV_X = 52;
-    private static final int SV_Y = 66;
+    private static final int SV_Y = 46;
     private static final int SV_WIDTH = 96;
     private static final int SV_HEIGHT = 70;
 
     private static final int HUE_X = 152;
-    private static final int HUE_Y = 66;
+    private static final int HUE_Y = 46;
     private static final int HUE_WIDTH = 10;
     private static final int HUE_HEIGHT = 70;
 
     private static final int HEX_X = 170;
-    private static final int HEX_Y = 34;
+    private static final int HEX_Y = 50;
     private static final int HEX_WIDTH = 78;
     private static final int HEX_HEIGHT = 20;
 
     private static final int APPLY_X = 170;
-    private static final int APPLY_Y = 62;
+    private static final int APPLY_Y = 74;
     private static final int APPLY_WIDTH = 78;
     private static final int APPLY_HEIGHT = 20;
 
     private static final int CANCEL_X = 170;
-    private static final int CANCEL_Y = 86;
+    private static final int CANCEL_Y = 98;
     private static final int CANCEL_WIDTH = 78;
     private static final int CANCEL_HEIGHT = 20;
 
@@ -100,9 +100,9 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         super.init();
         this.partButtons = new Button[]{
             this.createPartButton(WingPart.LEFT_STEM, 52, PART_BUTTON_Y_TOP),
-            this.createPartButton(WingPart.RIGHT_STEM, 103, PART_BUTTON_Y_TOP),
-            this.createPartButton(WingPart.LEFT_FEATHERS, 154, PART_BUTTON_Y_TOP),
-            this.createPartButton(WingPart.RIGHT_FEATHERS, 205, PART_BUTTON_Y_TOP)
+            this.createPartButton(WingPart.RIGHT_STEM, 102, PART_BUTTON_Y_TOP),
+            this.createPartButton(WingPart.LEFT_FEATHERS, 152, PART_BUTTON_Y_TOP),
+            this.createPartButton(WingPart.RIGHT_FEATHERS, 202, PART_BUTTON_Y_TOP)
         };
         for (Button button : this.partButtons) {
             this.addRenderableWidget(button);
@@ -165,7 +165,7 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, 8, 6, 0xFFFFFF, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFFFFFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.hex"), HEX_X, 28, 0xE4E4E4, false);
+        guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.hex"), HEX_X, 38, 0xE4E4E4, false);
     }
 
     @Override
@@ -272,8 +272,9 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 10.0F, 250.0F);
             guiGraphics.pose().scale(18.0F, -18.0F, 18.0F);
             guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(180.0F));
-            guiGraphics.pose().mulPose(Axis.ZP.rotationDegrees(180.0F));
-            guiGraphics.pose().translate(0.0F, -0.26F, 0.0F);
+            guiGraphics.pose().mulPose(Axis.ZP.rotationDegrees(0.0F));
+            guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(180.0F));
+            guiGraphics.pose().translate(0.0F, -1.75F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
             model.renderPartColors(
