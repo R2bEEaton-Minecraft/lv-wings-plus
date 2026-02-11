@@ -34,6 +34,10 @@ public abstract class State {
     }
 
     private State getNext(Flight flight, double x, double y, double z, Player player) {
+        boolean creativeFlying = player.getAbilities().mayfly && player.getAbilities().flying && !player.onGround();
+        if (creativeFlying) {
+            return this.createLand();
+        }
         if (flight.isFlying() || flight.isFloating()) {
             if (y < 0 && player.getXRot() >= this.getPitch(x, y, z)) {
                 return this.createGlide();
