@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.toni.wings.client.flight.AnimatorAvian;
+import com.toni.wings.server.item.WingsArmorItem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
@@ -160,6 +161,43 @@ public final class ModelWingsAvian extends ModelWings<AnimatorAvian> {
 
     @Override
     public void render(@Nonnull AnimatorAvian animator, float delta, @Nonnull PoseStack matrixStack, @Nonnull VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        this.applyAngles(animator, delta);
+        this.setFeathersVisible(true);
+        this.setStemsSkipDraw(false);
+        this.coracoidLeft.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+        this.coracoidRight.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    public void renderPartColors(@Nonnull AnimatorAvian animator, float delta, @Nonnull PoseStack matrixStack, @Nonnull VertexConsumer buffer, int packedLight, int packedOverlay, WingsArmorItem.PartColors colors, float alpha) {
+        this.applyAngles(animator, delta);
+
+        float leftStemRed = ((colors.leftStem() >> 16) & 0xFF) / 255.0F;
+        float leftStemGreen = ((colors.leftStem() >> 8) & 0xFF) / 255.0F;
+        float leftStemBlue = (colors.leftStem() & 0xFF) / 255.0F;
+        float rightStemRed = ((colors.rightStem() >> 16) & 0xFF) / 255.0F;
+        float rightStemGreen = ((colors.rightStem() >> 8) & 0xFF) / 255.0F;
+        float rightStemBlue = (colors.rightStem() & 0xFF) / 255.0F;
+        float leftFeatherRed = ((colors.leftFeathers() >> 16) & 0xFF) / 255.0F;
+        float leftFeatherGreen = ((colors.leftFeathers() >> 8) & 0xFF) / 255.0F;
+        float leftFeatherBlue = (colors.leftFeathers() & 0xFF) / 255.0F;
+        float rightFeatherRed = ((colors.rightFeathers() >> 16) & 0xFF) / 255.0F;
+        float rightFeatherGreen = ((colors.rightFeathers() >> 8) & 0xFF) / 255.0F;
+        float rightFeatherBlue = (colors.rightFeathers() & 0xFF) / 255.0F;
+
+        this.setFeathersVisible(false);
+        this.setStemsSkipDraw(false);
+        this.coracoidLeft.render(matrixStack, buffer, packedLight, packedOverlay, leftStemRed, leftStemGreen, leftStemBlue, alpha);
+        this.coracoidRight.render(matrixStack, buffer, packedLight, packedOverlay, rightStemRed, rightStemGreen, rightStemBlue, alpha);
+
+        this.setFeathersVisible(true);
+        this.setStemsSkipDraw(true);
+        this.coracoidLeft.render(matrixStack, buffer, packedLight, packedOverlay, leftFeatherRed, leftFeatherGreen, leftFeatherBlue, alpha);
+        this.coracoidRight.render(matrixStack, buffer, packedLight, packedOverlay, rightFeatherRed, rightFeatherGreen, rightFeatherBlue, alpha);
+
+        this.setStemsSkipDraw(false);
+    }
+
+    private void applyAngles(AnimatorAvian animator, float delta) {
         for (int i = 0; i < this.bonesLeft.size(); i++) {
             ModelPart left = this.bonesLeft.get(i);
             ModelPart right = this.bonesRight.get(i);
@@ -170,10 +208,24 @@ public final class ModelWingsAvian extends ModelWings<AnimatorAvian> {
             ModelPart right = this.feathersRight.get(i);
             setAngles(left, right, animator.getFeatherRotation(i, delta));
         }
+    }
 
-        this.coracoidLeft.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-        this.coracoidRight.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+    private void setFeathersVisible(boolean visible) {
+        for (ModelPart left : this.feathersLeft) {
+            left.visible = visible;
+        }
+        for (ModelPart right : this.feathersRight) {
+            right.visible = visible;
+        }
+    }
 
+    private void setStemsSkipDraw(boolean skipDraw) {
+        for (ModelPart left : this.bonesLeft) {
+            left.skipDraw = skipDraw;
+        }
+        for (ModelPart right : this.bonesRight) {
+            right.skipDraw = skipDraw;
+        }
     }
 
     private static void add3DTexture(

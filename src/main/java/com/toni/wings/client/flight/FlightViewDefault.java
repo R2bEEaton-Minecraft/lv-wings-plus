@@ -3,9 +3,11 @@ package com.toni.wings.client.flight;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.toni.wings.client.apparatus.WingForm;
+import com.toni.wings.client.model.ModelWingsAvian;
 import com.toni.wings.client.flight.state.State;
 import com.toni.wings.client.flight.state.StateIdle;
 import com.toni.wings.server.flight.Flight;
+import com.toni.wings.server.item.WingsArmorItem;
 import com.toni.wings.util.function.FloatConsumer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -169,6 +171,24 @@ public final class FlightViewDefault implements FlightView {
                     @Override
                     public void render(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float delta) {
                         WingStrategy.this.shape.getModel().render(WingStrategy.this.animator, delta, matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+                    }
+
+                    @Override
+                    public boolean renderPartColors(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, WingsArmorItem.PartColors colors, float alpha, float delta) {
+                        if (WingStrategy.this.shape.getModel() instanceof ModelWingsAvian avianModel && WingStrategy.this.animator instanceof AnimatorAvian avianAnimator) {
+                            avianModel.renderPartColors(
+                                avianAnimator,
+                                delta,
+                                matrixStack,
+                                buffer,
+                                packedLight,
+                                packedOverlay,
+                                colors,
+                                alpha
+                            );
+                            return true;
+                        }
+                        return false;
                     }
                 });
             }
