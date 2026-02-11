@@ -50,17 +50,17 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
     private static final int HUE_HEIGHT = 70;
 
     private static final int HEX_X = 170;
-    private static final int HEX_Y = 50;
+    private static final int HEX_Y = 47;
     private static final int HEX_WIDTH = 78;
     private static final int HEX_HEIGHT = 20;
 
     private static final int APPLY_X = 170;
-    private static final int APPLY_Y = 74;
+    private static final int APPLY_Y = 72;
     private static final int APPLY_WIDTH = 78;
     private static final int APPLY_HEIGHT = 20;
 
     private static final int CANCEL_X = 170;
-    private static final int CANCEL_Y = 98;
+    private static final int CANCEL_Y = 96;
     private static final int CANCEL_WIDTH = 78;
     private static final int CANCEL_HEIGHT = 20;
 
@@ -151,9 +151,8 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
 
     @Override
     protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, 8, 6, 0xFFFFFF, false);
-        guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFFFFFF, false);
-        guiGraphics.drawString(this.font, Component.translatable("screen.wings.wing_colorizer.hex"), HEX_X, 38, 0xE4E4E4, false);
+        guiGraphics.drawString(this.font, this.title, 8, 6, 0x3F3F3F, false);
+        guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x3F3F3F, false);
     }
 
     @Override
@@ -256,10 +255,11 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
 
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(cx, panelY + PREVIEW_HEIGHT - 10.0F, 250.0F);
-            guiGraphics.pose().scale(18.0F, 18.0F, -18.0F);
+            guiGraphics.pose().scale(18.0F, -18.0F, 18.0F);
             guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(180.0F));
+            guiGraphics.pose().mulPose(Axis.ZP.rotationDegrees(0.0F));
             guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(180.0F));
-            guiGraphics.pose().translate(0.0F, -1.15F, 0.0F);
+            guiGraphics.pose().translate(0.0F, -1.75F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
             model.renderPartColors(

@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "wings:block/wing_colorizer"
-    }
+    "facing=north": { "model": "wings:block/wing_colorizer", "y": 180 },
+    "facing=east": { "model": "wings:block/wing_colorizer", "y": 270 },
+    "facing=south": { "model": "wings:block/wing_colorizer" },
+    "facing=west": { "model": "wings:block/wing_colorizer", "y": 90 }
   }
 }
