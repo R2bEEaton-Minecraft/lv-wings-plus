@@ -46,7 +46,7 @@ public final class WingColorizerMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(container, WING_SLOT, 20, 35) {
             @Override
             public boolean mayPlace(@Nonnull ItemStack stack) {
-                return stack.getItem() instanceof WingsArmorItem;
+                return isColorizerCompatibleWing(stack);
             }
 
             @Override
@@ -81,7 +81,7 @@ public final class WingColorizerMenu extends AbstractContainerMenu {
             if (!this.moveItemStackTo(inSlot, PLAYER_INVENTORY_START, HOTBAR_END, true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (inSlot.getItem() instanceof WingsArmorItem) {
+        } else if (isColorizerCompatibleWing(inSlot)) {
             if (!this.moveItemStackTo(inSlot, WING_SLOT, WING_SLOT + 1, false)) {
                 return ItemStack.EMPTY;
             }
@@ -129,7 +129,7 @@ public final class WingColorizerMenu extends AbstractContainerMenu {
 
     public boolean hasEditableWing() {
         ItemStack stack = this.getWingStack();
-        return stack.getItem() instanceof WingsArmorItem;
+        return isColorizerCompatibleWing(stack);
     }
 
     public boolean applyColors(Player player, int leftStem, int rightStem, int leftFeathers, int rightFeathers) {
@@ -137,7 +137,7 @@ public final class WingColorizerMenu extends AbstractContainerMenu {
             return false;
         }
         ItemStack stack = this.getWingStack();
-        if (!(stack.getItem() instanceof WingsArmorItem wingsItem)) {
+        if (!(stack.getItem() instanceof WingsArmorItem wingsItem) || !wingsItem.isColorizerCompatible(stack)) {
             return false;
         }
         wingsItem.setPartColors(
@@ -165,5 +165,9 @@ public final class WingColorizerMenu extends AbstractContainerMenu {
     }
 
     private record ClientData(Container container, ContainerLevelAccess access) {
+    }
+
+    private static boolean isColorizerCompatibleWing(ItemStack stack) {
+        return stack.getItem() instanceof WingsArmorItem wingsItem && wingsItem.isColorizerCompatible(stack);
     }
 }

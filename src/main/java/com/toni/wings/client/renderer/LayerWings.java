@@ -41,6 +41,9 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
     public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource buffer, int packedLight, @Nonnull LivingEntity player, float limbSwing, float limbSwingAmount, float delta, float age, float headYaw, float headPitch) {
         if (!player.isInvisible()) {
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+            if (chest.getItem() instanceof WingsArmorItem wingsItem && !wingsItem.shouldRenderWingModel(chest)) {
+                return;
+            }
             WingsArmorItem.PartColors partColors = chest.getItem() instanceof WingsArmorItem wingsItem
                 ? wingsItem.getPartColors(chest)
                 : WingsArmorItem.PartColors.uniform(0xFFFFFF);

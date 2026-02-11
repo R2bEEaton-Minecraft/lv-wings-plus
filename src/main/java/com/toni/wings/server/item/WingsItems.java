@@ -42,12 +42,23 @@ public final class WingsItems {
     //public static final RegistryObject<Item> METALLIC_WINGS_BOTTLE = REG.register("metallic_wings_bottle", bottle(() -> WingsMod.METALLIC_WINGS));
 
     public static final RegistryObject<Item> WINGS = REG.register("wings",
-        () -> new WingsArmorItem(
+        () -> new DyeableWingsArmorItem(
             WingsArmorMaterial.HIDDEN,
             ArmorItem.Type.CHESTPLATE,
             new Item.Properties().stacksTo(1),
             WingsMod.ANGEL_WINGS,
             0xFFFFFF
+        ));
+
+    public static final RegistryObject<Item> INVISIBLE_WINGS = REG.register("invisible_wings",
+        () -> new WingsArmorItem(
+            WingsArmorMaterial.HIDDEN,
+            ArmorItem.Type.CHESTPLATE,
+            new Item.Properties().stacksTo(1),
+            WingsMod.ANGEL_WINGS,
+            0xFFFFFF,
+            false,
+            false
         ));
 
     private static Supplier<Item> bottle(Supplier<FlightApparatus> wings) {
@@ -73,6 +84,7 @@ public final class WingsItems {
             event.accept(LVJIA_SUPER_WINGS_BOTTLE.get());
         } else if (tabKey == CreativeModeTabs.COMBAT) {
             event.accept(WINGS.get());
+            event.accept(INVISIBLE_WINGS.get());
         }
     }
 

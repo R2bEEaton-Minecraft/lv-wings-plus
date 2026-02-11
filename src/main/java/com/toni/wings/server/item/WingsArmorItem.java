@@ -5,14 +5,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.Objects;
 
-public class WingsArmorItem extends ArmorItem implements DyeableLeatherItem {
+public class WingsArmorItem extends ArmorItem {
     private static final String TAG_DISPLAY = "display";
     private static final String TAG_COLOR = "color";
     private static final String TAG_WING_COLORIZER = "WingColorizer";
@@ -23,18 +22,33 @@ public class WingsArmorItem extends ArmorItem implements DyeableLeatherItem {
 
     private final FlightApparatus wing;
     private final int defaultColor;
+    private final boolean renderWingModel;
+    private final boolean colorizerCompatible;
 
     public WingsArmorItem(ArmorMaterial material, Type type, Properties properties, FlightApparatus wing, int defaultColor) {
+        this(material, type, properties, wing, defaultColor, true, true);
+    }
+
+    public WingsArmorItem(ArmorMaterial material, Type type, Properties properties, FlightApparatus wing, int defaultColor, boolean renderWingModel, boolean colorizerCompatible) {
         super(material, type, properties);
         this.wing = Objects.requireNonNull(wing);
         this.defaultColor = defaultColor;
+        this.renderWingModel = renderWingModel;
+        this.colorizerCompatible = colorizerCompatible;
     }
 
     public FlightApparatus getWing() {
         return this.wing;
     }
 
-    @Override
+    public boolean shouldRenderWingModel(ItemStack stack) {
+        return this.renderWingModel;
+    }
+
+    public boolean isColorizerCompatible(ItemStack stack) {
+        return this.colorizerCompatible;
+    }
+
     public int getColor(ItemStack stack) {
         CompoundTag display = stack.getTagElement(TAG_DISPLAY);
         if (display != null && display.contains(TAG_COLOR, Tag.TAG_INT)) {
@@ -43,7 +57,6 @@ public class WingsArmorItem extends ArmorItem implements DyeableLeatherItem {
         return this.defaultColor;
     }
 
-    @Override
     public boolean hasCustomColor(ItemStack stack) {
         CompoundTag display = stack.getTagElement(TAG_DISPLAY);
         return display != null && display.contains(TAG_COLOR, Tag.TAG_INT);

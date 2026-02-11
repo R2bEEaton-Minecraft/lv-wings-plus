@@ -96,7 +96,9 @@ public final class WingColorizerBlockEntity extends BlockEntity implements MenuP
 
     @Override
     public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) {
-        return slot == 0 && stack.getItem() instanceof WingsArmorItem;
+        return slot == 0
+            && stack.getItem() instanceof WingsArmorItem wingsItem
+            && wingsItem.isColorizerCompatible(stack);
     }
 
     @Override

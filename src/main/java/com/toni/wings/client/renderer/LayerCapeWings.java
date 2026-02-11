@@ -4,11 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.toni.wings.WingsMod;
 import com.toni.wings.client.flight.FlightViews;
 import com.toni.wings.server.flight.Flights;
+import com.toni.wings.server.item.WingsArmorItem;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,6 +31,11 @@ public class LayerCapeWings extends CapeLayer {
     }
 
     private boolean hasVisibleWings(AbstractClientPlayer player) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (chest.getItem() instanceof WingsArmorItem wingsItem && !wingsItem.shouldRenderWingModel(chest)) {
+            return false;
+        }
+
         AtomicBoolean hasWings = new AtomicBoolean(false);
         FlightViews.get(player).ifPresent(flight -> flight.ifFormPresent(form -> hasWings.set(true)));
         if (hasWings.get()) {
