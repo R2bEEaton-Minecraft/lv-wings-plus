@@ -3,13 +3,13 @@ package com.toni.wings.server.config;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public final class WingsClientConfig {
-    public static final double CREATIVE_FLAPPING_SPEED_MIN = 0.25D;
-    public static final double CREATIVE_FLAPPING_SPEED_MAX = 2.0D;
-    private static final double CREATIVE_FLAPPING_SPEED_DEFAULT = 1.0D;
+    public static final double CREATIVE_HOVER_FLAP_RATE_MIN = 0.0D;
+    public static final double CREATIVE_HOVER_FLAP_RATE_MAX = 2.0D;
+    private static final double CREATIVE_HOVER_FLAP_RATE_DEFAULT = 0.67D;
 
     public static final ForgeConfigSpec SPEC;
     private static final ForgeConfigSpec.BooleanValue ENABLE_POSE_PREVIEW;
-    private static final ForgeConfigSpec.DoubleValue CREATIVE_FLAPPING_SPEED_MULTIPLIER;
+    private static final ForgeConfigSpec.DoubleValue CREATIVE_HOVER_FLAP_RATE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -19,12 +19,12 @@ public final class WingsClientConfig {
             .comment("Show the player pose preview overlay when cycling flight poses.")
             .define("enablePosePreview", false);
 
-        CREATIVE_FLAPPING_SPEED_MULTIPLIER = builder
-            .comment("Creative mode wing flapping speed multiplier.")
-            .defineInRange("creativeFlappingSpeedMultiplier",
-                CREATIVE_FLAPPING_SPEED_DEFAULT,
-                CREATIVE_FLAPPING_SPEED_MIN,
-                CREATIVE_FLAPPING_SPEED_MAX
+        CREATIVE_HOVER_FLAP_RATE = builder
+            .comment("Creative mode wing flapping speed (0.00 to 2.00).")
+            .defineInRange("creativeHoverFlapRate",
+                CREATIVE_HOVER_FLAP_RATE_DEFAULT,
+                CREATIVE_HOVER_FLAP_RATE_MIN,
+                CREATIVE_HOVER_FLAP_RATE_MAX
             );
 
         builder.pop();
@@ -43,31 +43,33 @@ public final class WingsClientConfig {
         ENABLE_POSE_PREVIEW.save();
     }
 
-    public static double getCreativeFlappingSpeedMultiplier() {
-        return CREATIVE_FLAPPING_SPEED_MULTIPLIER.get();
+    public static double getCreativeHoverFlapRate() {
+        return CREATIVE_HOVER_FLAP_RATE.get();
     }
 
-    public static void setCreativeFlappingSpeedMultiplier(double multiplier) {
-        CREATIVE_FLAPPING_SPEED_MULTIPLIER.set(clampCreativeFlappingSpeed(multiplier));
-        CREATIVE_FLAPPING_SPEED_MULTIPLIER.save();
+    public static void setCreativeHoverFlapRate(double flapRate) {
+        CREATIVE_HOVER_FLAP_RATE.set(clampCreativeHoverFlapRate(flapRate));
+        CREATIVE_HOVER_FLAP_RATE.save();
     }
 
-    public static double clampCreativeFlappingSpeed(double multiplier) {
-        return Math.max(CREATIVE_FLAPPING_SPEED_MIN, Math.min(CREATIVE_FLAPPING_SPEED_MAX, multiplier));
+    public static double clampCreativeHoverFlapRate(double flapRate) {
+        return Math.max(CREATIVE_HOVER_FLAP_RATE_MIN, Math.min(CREATIVE_HOVER_FLAP_RATE_MAX, flapRate));
     }
 
-    public static double normalizeCreativeFlappingSpeed(double multiplier) {
-        double clamped = clampCreativeFlappingSpeed(multiplier);
-        return (clamped - CREATIVE_FLAPPING_SPEED_MIN) / (CREATIVE_FLAPPING_SPEED_MAX - CREATIVE_FLAPPING_SPEED_MIN);
+    public static double normalizeCreativeHoverFlapRate(double flapRate) {
+        double clamped = clampCreativeHoverFlapRate(flapRate);
+        return (clamped - CREATIVE_HOVER_FLAP_RATE_MIN) /
+            (CREATIVE_HOVER_FLAP_RATE_MAX - CREATIVE_HOVER_FLAP_RATE_MIN);
     }
 
-    public static double denormalizeCreativeFlappingSpeed(double sliderValue) {
+    public static double denormalizeCreativeHoverFlapRate(double sliderValue) {
         double clampedSlider = Math.max(0.0D, Math.min(1.0D, sliderValue));
-        return CREATIVE_FLAPPING_SPEED_MIN + clampedSlider * (CREATIVE_FLAPPING_SPEED_MAX - CREATIVE_FLAPPING_SPEED_MIN);
+        return CREATIVE_HOVER_FLAP_RATE_MIN + clampedSlider *
+            (CREATIVE_HOVER_FLAP_RATE_MAX - CREATIVE_HOVER_FLAP_RATE_MIN);
     }
 
     public static void validate() {
         isPosePreviewEnabled();
-        getCreativeFlappingSpeedMultiplier();
+        getCreativeHoverFlapRate();
     }
 }

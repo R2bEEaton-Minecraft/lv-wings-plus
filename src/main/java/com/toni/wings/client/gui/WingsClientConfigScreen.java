@@ -7,19 +7,21 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 public final class WingsClientConfigScreen extends Screen {
-    private static final double CREATIVE_FLAPPING_SPEED_STEP = 0.05D;
+    private static final double CREATIVE_HOVER_FLAP_RATE_STEP = 0.01D;
 
     private final Screen parent;
     private boolean posePreviewEnabled;
-    private double creativeFlappingSpeedMultiplier;
+    private double creativeHoverFlapRate;
     private Button posePreviewButton;
 
     public WingsClientConfigScreen(Screen parent) {
         super(Component.literal("Wings Config"));
         this.parent = parent;
         this.posePreviewEnabled = WingsClientConfig.isPosePreviewEnabled();
-        this.creativeFlappingSpeedMultiplier = WingsClientConfig.getCreativeFlappingSpeedMultiplier();
+        this.creativeHoverFlapRate = WingsClientConfig.getCreativeHoverFlapRate();
     }
 
     @Override
@@ -32,7 +34,7 @@ public final class WingsClientConfigScreen extends Screen {
             centerY - 34,
             200,
             20,
-            this.creativeFlappingSpeedMultiplier
+            this.creativeHoverFlapRate
         ));
 
         this.posePreviewButton = this.addRenderableWidget(Button.builder(Component.empty(), button -> {
@@ -67,7 +69,7 @@ public final class WingsClientConfigScreen extends Screen {
 
     private void saveAndClose() {
         WingsClientConfig.setPosePreviewEnabled(this.posePreviewEnabled);
-        WingsClientConfig.setCreativeFlappingSpeedMultiplier(this.creativeFlappingSpeedMultiplier);
+        WingsClientConfig.setCreativeHoverFlapRate(this.creativeHoverFlapRate);
         this.onClose();
     }
 
@@ -77,15 +79,15 @@ public final class WingsClientConfigScreen extends Screen {
         ));
     }
 
-    private static String formatPercent(double value) {
-        return (int) Math.round(value * 100.0D) + "%";
+    private static String formatFlapRate(double value) {
+        return String.format(Locale.US, "%.2f/s", value);
     }
 
-    private static double snapCreativeFlappingSpeed(double value) {
-        double min = WingsClientConfig.CREATIVE_FLAPPING_SPEED_MIN;
-        double steps = Math.round((value - min) / CREATIVE_FLAPPING_SPEED_STEP);
-        double snapped = min + steps * CREATIVE_FLAPPING_SPEED_STEP;
-        return WingsClientConfig.clampCreativeFlappingSpeed(snapped);
+    private static double snapCreativeHoverFlapRate(double value) {
+        double min = WingsClientConfig.CREATIVE_HOVER_FLAP_RATE_MIN;
+        double steps = Math.round((value - min) / CREATIVE_HOVER_FLAP_RATE_STEP);
+        double snapped = min + steps * CREATIVE_HOVER_FLAP_RATE_STEP;
+        return WingsClientConfig.clampCreativeHoverFlapRate(snapped);
     }
 
     private final class CreativeFlappingSpeedSlider extends AbstractSliderButton {
@@ -96,7 +98,7 @@ public final class WingsClientConfigScreen extends Screen {
                 width,
                 height,
                 Component.empty(),
-                WingsClientConfig.normalizeCreativeFlappingSpeed(initialValue)
+                WingsClientConfig.normalizeCreativeHoverFlapRate(initialValue)
             );
             this.applyValue();
             this.updateMessage();
@@ -106,16 +108,17 @@ public final class WingsClientConfigScreen extends Screen {
         protected void updateMessage() {
             this.setMessage(Component.literal(
                 "Creative Flapping Speed: " +
-                    WingsClientConfigScreen.formatPercent(WingsClientConfigScreen.this.creativeFlappingSpeedMultiplier)
+                    WingsClientConfigScreen.formatFlapRate(WingsClientConfigScreen.this.creativeHoverFlapRate)
             ));
         }
 
         @Override
         protected void applyValue() {
-            double value = WingsClientConfig.denormalizeCreativeFlappingSpeed(this.value);
-            WingsClientConfigScreen.this.creativeFlappingSpeedMultiplier = WingsClientConfigScreen.snapCreativeFlappingSpeed(value);
-            this.value = WingsClientConfig.normalizeCreativeFlappingSpeed(
-                WingsClientConfigScreen.this.creativeFlappingSpeedMultiplier
+            double value = WingsClientConfig.denormalizeCreativeHoverFlapRate(this.value);
+            WingsClientConfigScreen.this.creativeHoverFlapRate =
+                WingsClientConfigScreen.snapCreativeHoverFlapRate(value);
+            this.value = WingsClientConfig.normalizeCreativeHoverFlapRate(
+                WingsClientConfigScreen.this.creativeHoverFlapRate
             );
         }
     }

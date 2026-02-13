@@ -9,8 +9,6 @@ public final class AnimatorInsectoid implements Animator {
 
     private static final float LIFT_FLAP_RATE = 1.2F;
 
-    private static final float CREATIVE_HOVER_BASE_FLAP_RATE = LIFT_FLAP_RATE * 0.5F;
-
     private float targetFlapRate = IDLE_FLAP_RATE;
 
     private float flapRate;
@@ -26,7 +24,7 @@ public final class AnimatorInsectoid implements Animator {
 
     @Override
     public void beginCreativeHover() {
-        this.targetFlapRate = CREATIVE_HOVER_BASE_FLAP_RATE * (float) WingsClientConfig.getCreativeFlappingSpeedMultiplier();
+        this.targetFlapRate = (float) WingsClientConfig.getCreativeHoverFlapRate();
     }
 
     @Override

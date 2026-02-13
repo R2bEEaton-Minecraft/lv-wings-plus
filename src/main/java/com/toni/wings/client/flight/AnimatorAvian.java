@@ -12,8 +12,6 @@ import java.util.Random;
 public final class AnimatorAvian implements Animator {
     private static final float LAND_FLAP_RATE = 0.67F;
 
-    private static final float CREATIVE_HOVER_BASE_FLAP_RATE = LAND_FLAP_RATE * 0.5F;
-
     private static final int LAND_TRANSITION_DURATION = 2;
 
     private static final int GLIDE_TRANSITION_DURATION = 60;
@@ -162,7 +160,7 @@ public final class AnimatorAvian implements Animator {
     private final class CreativeHoverMovement extends LandMovement {
         @Override
         public float update() {
-            return CREATIVE_HOVER_BASE_FLAP_RATE * (float) WingsClientConfig.getCreativeFlappingSpeedMultiplier();
+            return (float) WingsClientConfig.getCreativeHoverFlapRate();
         }
     }
 
