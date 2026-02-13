@@ -9,6 +9,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Random;
 
 public final class AnimatorAvian implements Animator {
+    private static final float LAND_FLAP_RATE = 0.67F;
+
+    private static final float CREATIVE_HOVER_FLAP_RATE = LAND_FLAP_RATE * 0.5F;
+
     private static final int LAND_TRANSITION_DURATION = 2;
 
     private static final int GLIDE_TRANSITION_DURATION = 60;
@@ -47,6 +51,11 @@ public final class AnimatorAvian implements Animator {
     @Override
     public void beginLand() {
         this.beginMovement(new LandMovement(), LAND_TRANSITION_DURATION);
+    }
+
+    @Override
+    public void beginCreativeHover() {
+        this.beginMovement(new CreativeHoverMovement(), LAND_TRANSITION_DURATION);
     }
 
     @Override
@@ -126,7 +135,7 @@ public final class AnimatorAvian implements Animator {
         return Math.min(Math.abs(index - 1), 2) / 2.0F;
     }
 
-    private final class LandMovement implements Movement {
+    private class LandMovement implements Movement {
         @Override
         public Vec3 getWingRotation(int index, float delta) {
             float pos = AnimatorAvian.this.getWeight(index + 1);
@@ -145,7 +154,14 @@ public final class AnimatorAvian implements Animator {
 
         @Override
         public float update() {
-            return 0.67F;
+            return LAND_FLAP_RATE;
+        }
+    }
+
+    private final class CreativeHoverMovement extends LandMovement {
+        @Override
+        public float update() {
+            return CREATIVE_HOVER_FLAP_RATE;
         }
     }
 
