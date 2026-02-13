@@ -2,6 +2,7 @@ package com.toni.wings.server.item;
 
 import com.toni.wings.WingsMod;
 import com.toni.wings.server.apparatus.FlightApparatus;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -12,6 +13,7 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.MissingMappingsEvent;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
@@ -41,12 +43,21 @@ public final class WingsItems {
     public static final RegistryObject<Item> LVJIA_SUPER_WINGS_BOTTLE = REG.register("lvjia_super_wings_bottle", bottle(() -> WingsMod.LVJIA_SUPER_WINGS));
     //public static final RegistryObject<Item> METALLIC_WINGS_BOTTLE = REG.register("metallic_wings_bottle", bottle(() -> WingsMod.METALLIC_WINGS));
 
-    public static final RegistryObject<Item> WINGS = REG.register("wings",
+    public static final RegistryObject<Item> ANGEL_WINGS = REG.register("angel_wings",
         () -> new DyeableWingsArmorItem(
             WingsArmorMaterial.HIDDEN,
             ArmorItem.Type.CHESTPLATE,
             new Item.Properties().stacksTo(1),
             WingsMod.ANGEL_WINGS,
+            0xFFFFFF
+        ));
+
+    public static final RegistryObject<Item> DRAGON_WINGS = REG.register("dragon_wings",
+        () -> new DyeableWingsArmorItem(
+            WingsArmorMaterial.HIDDEN,
+            ArmorItem.Type.CHESTPLATE,
+            new Item.Properties().stacksTo(1),
+            WingsMod.DRAGON_WINGS,
             0xFFFFFF
         ));
 
@@ -83,8 +94,18 @@ public final class WingsItems {
             event.accept(DRAGON_WINGS_BOTTLE.get());
             event.accept(LVJIA_SUPER_WINGS_BOTTLE.get());
         } else if (tabKey == CreativeModeTabs.COMBAT) {
-            event.accept(WINGS.get());
+            event.accept(ANGEL_WINGS.get());
+            event.accept(DRAGON_WINGS.get());
             event.accept(INVISIBLE_WINGS.get());
+        }
+    }
+
+    public static void onMissingMappings(MissingMappingsEvent event) {
+        ResourceLocation oldWingsItemId = WingsMod.locate("wings");
+        for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, WingsMod.ID)) {
+            if (mapping.getKey().equals(oldWingsItemId)) {
+                mapping.remap(ANGEL_WINGS.get());
+            }
         }
     }
 

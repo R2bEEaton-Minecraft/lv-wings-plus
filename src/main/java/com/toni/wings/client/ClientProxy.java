@@ -174,7 +174,7 @@ public final class ClientProxy extends Proxy {
                 return dyeable.getColor(stack);
             }
             return 0xFFFFFF;
-        }, WingsItems.WINGS.get(), WingsItems.INVISIBLE_WINGS.get());
+        }, WingsItems.ANGEL_WINGS.get(), WingsItems.DRAGON_WINGS.get(), WingsItems.INVISIBLE_WINGS.get());
     }
 
     private static void registerScreens(FMLClientSetupEvent event) {

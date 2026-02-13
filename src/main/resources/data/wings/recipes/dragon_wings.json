@@ -7,13 +7,13 @@
   ],
   "key": {
     "A": {
-      "item": "wings:angel_wings_bottle"
+      "item": "wings:dragon_wings_bottle"
     },
     "E": {
       "item": "minecraft:elytra"
     }
   },
   "result": {
-    "item": "wings:angel_wings"
+    "item": "wings:dragon_wings"
   }
 }
