@@ -1,11 +1,13 @@
 package com.toni.wings.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.toni.wings.WingsMod;
 import com.toni.wings.client.apparatus.WingForm;
 import com.toni.wings.client.flight.AnimatorAvian;
 import com.toni.wings.client.model.ModelWingsAvian;
+import com.toni.wings.client.renderer.SodiumBypassVertexConsumer;
 import com.toni.wings.server.item.WingsArmorItem;
 import com.toni.wings.server.menu.WingColorizerMenu;
 import com.toni.wings.server.net.serverbound.MessageApplyWingColors;
@@ -262,11 +264,12 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             guiGraphics.pose().translate(0.0F, -1.75F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
+            VertexConsumer builder = SodiumBypassVertexConsumer.wrap(source.getBuffer(form.getRenderType()));
             model.renderPartColors(
                 this.previewAnimator,
                 0.0F,
                 guiGraphics.pose(),
-                source.getBuffer(form.getRenderType()),
+                builder,
                 LightTexture.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
                 this.getDraftPartColors(),
