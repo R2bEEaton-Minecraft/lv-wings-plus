@@ -1,6 +1,7 @@
 package com.toni.wings.client.flight;
 
 import com.google.common.collect.ImmutableMap;
+import com.toni.wings.server.config.WingsClientConfig;
 import com.toni.wings.util.MathH;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -11,7 +12,7 @@ import java.util.Random;
 public final class AnimatorAvian implements Animator {
     private static final float LAND_FLAP_RATE = 0.67F;
 
-    private static final float CREATIVE_HOVER_FLAP_RATE = LAND_FLAP_RATE * 0.5F;
+    private static final float CREATIVE_HOVER_BASE_FLAP_RATE = LAND_FLAP_RATE * 0.5F;
 
     private static final int LAND_TRANSITION_DURATION = 2;
 
@@ -161,7 +162,7 @@ public final class AnimatorAvian implements Animator {
     private final class CreativeHoverMovement extends LandMovement {
         @Override
         public float update() {
-            return CREATIVE_HOVER_FLAP_RATE;
+            return CREATIVE_HOVER_BASE_FLAP_RATE * (float) WingsClientConfig.getCreativeFlappingSpeedMultiplier();
         }
     }
 
