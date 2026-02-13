@@ -248,7 +248,15 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         int panelY = y0 + PREVIEW_Y;
         int cx = panelX + PREVIEW_WIDTH / 2;
 
-        WingForm.get(WingsMod.ANGEL_WINGS).ifPresent(form -> {
+        ItemStack stack = this.menu.getWingStack();
+        if (!(stack.getItem() instanceof WingsArmorItem wingsItem)) {
+            return;
+        }
+        if (!wingsItem.shouldRenderWingModel(stack)) {
+            return;
+        }
+
+        WingForm.get(wingsItem.getWing()).ifPresent(form -> {
             if (!(form.getModel() instanceof ModelWingsAvian model)) {
                 return;
             }
