@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -100,6 +101,7 @@ public final class WingsItems {
         }
     }
 
+    @SubscribeEvent
     public static void onMissingMappings(MissingMappingsEvent event) {
         ResourceLocation oldWingsItemId = WingsMod.locate("wings");
         for (MissingMappingsEvent.Mapping<Item> mapping : event.getMappings(ForgeRegistries.Keys.ITEMS, WingsMod.ID)) {

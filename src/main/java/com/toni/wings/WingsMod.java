@@ -89,7 +89,6 @@ public final class WingsMod {
     WingsItems.REG.register(bus);
     bus.addListener(WingsBlocks::buildCreativeTabContents);
     bus.addListener(WingsItems::buildCreativeTabContents);
-    bus.addListener(WingsItems::onMissingMappings);
         WingsSounds.REG.register(bus);
         WingsEffects.REG.register(bus);
         COMMAND_ARGUMENT_TYPES.register(bus);
