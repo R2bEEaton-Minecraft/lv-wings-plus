@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "AEA",
+    " P "
+  ],
+  "key": {
+    "A": {
+      "item": "wings:angel_wings_bottle"
+    },
+    "E": {
+      "item": "minecraft:elytra"
+    },
+    "P": {
+      "type": "forge:partial_nbt",
+      "item": "minecraft:potion",
+      "nbt": "{Potion:\"minecraft:invisibility\"}"
+    }
+  },
+  "result": {
+    "item": "wings:invisible_wings"
+  }
+}

@@ -18,6 +18,7 @@
   "item.wings.dragon_wings_bottle": "Dragon Wings Bottle",
   "item.wings.lvjia_super_wings_bottle": "Lvjia Super Wings Bottle",
   "item.wings.wings": "Wings",
+  "item.wings.invisible_wings": "Invisible Wings",
   "item.wings.fairyDust.name": "Fairy Dust",
   "item.wings.amethyst.name": "Amethyst",
   "item.wings.bat_blood_bottle": "Bat Blood Bottle",
@@ -85,5 +86,19 @@
   "config.wings.items.settings.durability.tooltip": "Infinite durability specified by 0",
   "wings.tooltip": "General Options",
   "config.wings.wearObstructions": "Wear Obstructions",
-  "config.wings.wearObstructions.tooltip": "Customize items, when used in the chestplate slot, obstruct wings in the body bauble slot."
+  "config.wings.wearObstructions.tooltip": "Customize items, when used in the chestplate slot, obstruct wings in the body bauble slot.",
+  "block.wings.wing_colorizer": "Wing Colorizer",
+  "container.wings.wing_colorizer": "Wing Colorizer",
+  "screen.wings.wing_colorizer.apply": "Apply",
+  "screen.wings.wing_colorizer.cancel": "Cancel",
+  "screen.wings.wing_colorizer.hex": "Hex",
+  "screen.wings.wing_colorizer.selected": "Selected: %s",
+  "screen.wings.wing_colorizer.left_stem": "Left Stem",
+  "screen.wings.wing_colorizer.right_stem": "Right Stem",
+  "screen.wings.wing_colorizer.left_feathers": "Left Feathers",
+  "screen.wings.wing_colorizer.right_feathers": "Right Feathers",
+  "screen.wings.wing_colorizer.left_stem_short": "L Stem",
+  "screen.wings.wing_colorizer.right_stem_short": "R Stem",
+  "screen.wings.wing_colorizer.left_feathers_short": "L Feath",
+  "screen.wings.wing_colorizer.right_feathers_short": "R Feath"
 }

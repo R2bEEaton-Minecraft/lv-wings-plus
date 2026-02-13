@@ -60,6 +60,19 @@ Usage:
 - Equip `Wings` in the chest slot to enable flight and render angel wings.
 - Combine `Wings` with any dye in a crafting grid to recolor.
 
+### Invisible Wings Item
+- Added `Invisible Wings`, a chest item with the same wing flight behavior as `Wings` but with the wing model fully hidden.
+- `Invisible Wings` cannot be recolored in a crafting grid and is not accepted by the Wing Colorizer block.
+- Recipe is similar to `Wings` and also requires an Invisibility potion.
+
+Recipe:
+- 4 `Angel Wings Bottle`
+- 1 `Elytra`
+- 1 `Potion of Invisibility`
+
+Usage:
+- Equip `Invisible Wings` in the chest slot to keep wing flight mechanics without rendering visible wings.
+
 ### Flight Poses
 - Added a pose cycle with four styles:
   - Default (both arms forward)
@@ -80,3 +93,7 @@ Usage:
 Usage:
 - Press `H` to toggle hover.
 - Press any movement key to exit hover.
+
+### Creative Flight Flapping
+- While wearing wings in Creative mode and using vanilla Creative flight, wings now stay in a continuous flap state (hover-style animation).
+- This no longer switches to descent-only flapping when moving downward in Creative flight.

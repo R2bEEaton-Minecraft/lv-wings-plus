@@ -40,13 +40,22 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
     @Override
     public void render(@Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource buffer, int packedLight, @Nonnull LivingEntity player, float limbSwing, float limbSwingAmount, float delta, float age, float headYaw, float headPitch) {
         if (!player.isInvisible()) {
+            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+            if (chest.getItem() instanceof WingsArmorItem wingsItem && !wingsItem.shouldRenderWingModel(chest)) {
+                return;
+            }
+            WingsArmorItem.PartColors partColors = chest.getItem() instanceof WingsArmorItem wingsItem
+                ? wingsItem.getPartColors(chest)
+                : WingsArmorItem.PartColors.uniform(0xFFFFFF);
             FlightViews.get(player).ifPresent(flight -> {
                 flight.ifFormPresent(form -> {
                     VertexConsumer builder = SodiumBypassVertexConsumer.wrap(buffer.getBuffer(form.getRenderType()));
                     matrixStack.pushPose();
                     this.transform.apply(player, matrixStack);
-                    float[] color = getWingTint(player);
-                    form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F, delta);
+                    if (!form.renderPartColors(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, partColors, 1.0F, delta)) {
+                        float[] color = getColorFloats(partColors.blendedColor());
+                        form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F, delta);
+                    }
                     matrixStack.popPose();
                 });
             });
@@ -74,15 +83,10 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
         void apply(LivingEntity player, PoseStack stack);
     }
 
-    private static float[] getWingTint(LivingEntity player) {
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (chest.getItem() instanceof WingsArmorItem wingsItem) {
-            int color = wingsItem.getColor(chest);
-            float red = ((color >> 16) & 0xFF) / 255.0F;
-            float green = ((color >> 8) & 0xFF) / 255.0F;
-            float blue = (color & 0xFF) / 255.0F;
-            return new float[]{red, green, blue};
-        }
-        return new float[]{1.0F, 1.0F, 1.0F};
+    private static float[] getColorFloats(int color) {
+        float red = ((color >> 16) & 0xFF) / 255.0F;
+        float green = ((color >> 8) & 0xFF) / 255.0F;
+        float blue = (color & 0xFF) / 255.0F;
+        return new float[]{red, green, blue};
     }
 }

@@ -7,6 +7,7 @@ import com.toni.wings.client.flight.Animator;
 import com.toni.wings.client.flight.AnimatorAvian;
 import com.toni.wings.client.flight.AnimatorInsectoid;
 import com.toni.wings.client.flight.FlightView;
+import com.toni.wings.client.gui.WingColorizerScreen;
 import com.toni.wings.client.gui.WingsClientConfigScreen;
 import com.toni.wings.client.model.ModelWings;
 import com.toni.wings.client.model.ModelWingsAvian;
@@ -17,11 +18,13 @@ import com.toni.wings.server.flight.Flights;
 import com.toni.wings.server.flight.FlightPose;
 import com.toni.wings.server.item.BatBloodBottleItem;
 import com.toni.wings.server.item.WingsItems;
+import com.toni.wings.server.menu.WingsMenus;
 import com.toni.wings.server.net.serverbound.MessageSetFloating;
 import com.toni.wings.server.net.serverbound.MessageSetFlightPose;
 import com.toni.wings.server.net.serverbound.MessageControlFlying;
 import com.toni.wings.util.KeyInputListener;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -36,6 +39,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Supplier;
@@ -93,6 +97,7 @@ public final class ClientProxy extends Proxy {
         );
 
         modBus.addListener(ClientProxy::registerItemColors);
+    modBus.addListener(ClientProxy::registerScreens);
     modBus.addListener(KeyInputListener::registerKeyMappings);
     }
 
@@ -169,6 +174,10 @@ public final class ClientProxy extends Proxy {
                 return dyeable.getColor(stack);
             }
             return 0xFFFFFF;
-        }, WingsItems.WINGS.get());
+        }, WingsItems.WINGS.get(), WingsItems.INVISIBLE_WINGS.get());
+    }
+
+    private static void registerScreens(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> MenuScreens.register(WingsMenus.WING_COLORIZER.get(), WingColorizerScreen::new));
     }
 }

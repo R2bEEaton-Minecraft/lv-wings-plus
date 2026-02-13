@@ -2,6 +2,7 @@ package com.toni.wings.client.flight;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.toni.wings.server.item.WingsArmorItem;
 import com.toni.wings.util.function.FloatConsumer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -24,5 +25,9 @@ public interface FlightView {
         RenderType getRenderType();
 
         void render(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float delta);
+
+        default boolean renderPartColors(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, WingsArmorItem.PartColors colors, float alpha, float delta) {
+            return false;
+        }
     }
 }
