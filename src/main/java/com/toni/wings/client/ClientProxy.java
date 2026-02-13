@@ -144,7 +144,7 @@ public final class ClientProxy extends Proxy {
     }
 
     private static  <A extends Animator> WingForm<A> createWings(ResourceLocation name, Supplier<A> animator, ModelWings<A> model, Supplier<RenderType> renderType) {
-        String texturePath = String.format("textures/entity/%s.png", name.getPath());
+        String texturePath = getWingTexturePath(name);
         ResourceLocation texture = ResourceLocation.tryBuild(name.getNamespace(), texturePath);
         if (texture == null) {
             throw new IllegalArgumentException("Invalid texture path: " + texturePath);
@@ -156,6 +156,16 @@ public final class ClientProxy extends Proxy {
             texture,
             actualRenderType
         );
+    }
+
+    private static String getWingTexturePath(ResourceLocation wingId) {
+        if (wingId.equals(WingsMod.Names.ANGEL)) {
+            return "textures/entity/angel_wings_grayscale.png";
+        }
+        if (wingId.equals(WingsMod.Names.DRAGON)) {
+            return "textures/entity/dragon_wings_grayscale.png";
+        }
+        return String.format("textures/entity/%s.png", wingId.getPath());
     }
 
     @OnlyIn(Dist.CLIENT)
