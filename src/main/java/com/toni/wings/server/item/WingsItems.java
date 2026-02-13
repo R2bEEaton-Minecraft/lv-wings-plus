@@ -50,7 +50,12 @@ public final class WingsItems {
             ArmorItem.Type.CHESTPLATE,
             new Item.Properties().stacksTo(1),
             WingsMod.ANGEL_WINGS,
-            0xFFFFFF
+            new WingsArmorItem.PartColors(
+                0xE6E6E6,
+                0xE5E5E5,
+                0xD8D8D8,
+                0xD8D8D8
+            )
         ));
 
     public static final RegistryObject<Item> DRAGON_WINGS = REG.register("dragon_wings",
@@ -59,7 +64,12 @@ public final class WingsItems {
             ArmorItem.Type.CHESTPLATE,
             new Item.Properties().stacksTo(1),
             WingsMod.DRAGON_WINGS,
-            0xFFFFFF
+            new WingsArmorItem.PartColors(
+                0x6E2726,
+                0x6E2625,
+                0xAC8561,
+                0xAD8662
+            )
         ));
 
     public static final RegistryObject<Item> INVISIBLE_WINGS = REG.register("invisible_wings",
