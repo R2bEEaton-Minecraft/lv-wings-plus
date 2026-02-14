@@ -10,9 +10,11 @@ import com.toni.wings.server.asm.AnimatePlayerModelEvent;
 import com.toni.wings.server.asm.ApplyPlayerRotationsEvent;
 import com.toni.wings.server.asm.EmptyOffHandPresentEvent;
 import com.toni.wings.server.asm.GetCameraEyeHeightEvent;
+import com.toni.wings.server.flight.Flight;
 import com.toni.wings.server.flight.Flights;
 import com.toni.wings.server.flight.FlightPose;
 import com.toni.wings.server.config.WingsClientConfig;
+import com.toni.wings.server.net.serverbound.MessageSetCreativeHoverFlapRate;
 import com.toni.wings.util.MathH;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -43,6 +45,7 @@ public final class ClientEventHandler {
     private static final int POSE_FADE_OUT_TICKS = 30;
     private static int posePreviewTicks;
     private static boolean renderingPosePreview;
+    private static double lastSyncedCreativeHoverFlapRate = Double.NaN;
 
     private ClientEventHandler() {
     }
@@ -64,8 +67,10 @@ public final class ClientEventHandler {
         LocalPlayer player = mc.player;
         if (player == null) {
             lastPlayerDimension = null;
+            lastSyncedCreativeHoverFlapRate = Double.NaN;
             return;
         }
+        syncCreativeHoverFlapRate(player);
         if (!WingsClientConfig.isPosePreviewEnabled() || !isFirstPersonCamera()) {
             posePreviewTicks = 0;
         } else if (posePreviewTicks > 0) {
@@ -265,6 +270,20 @@ public final class ClientEventHandler {
             || mc.options.keyRight.isDown()
             || mc.options.keyJump.isDown()
             || mc.options.keyShift.isDown();
+    }
+
+    private static void syncCreativeHoverFlapRate(LocalPlayer player) {
+        double configured = Flight.clampCreativeHoverFlapRate(WingsClientConfig.getCreativeHoverFlapRate());
+        if (Double.compare(lastSyncedCreativeHoverFlapRate, configured) == 0) {
+            return;
+        }
+        lastSyncedCreativeHoverFlapRate = configured;
+        Flights.get(player).ifPresent(flight -> flight.setCreativeHoverFlapRate(configured));
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() == null || !WingsMod.instance().network().isRemotePresent(mc.getConnection().getConnection())) {
+            return;
+        }
+        WingsMod.instance().network().sendToServer(new MessageSetCreativeHoverFlapRate(configured));
     }
 
     private static boolean isLocalFirstPerson(Player player) {

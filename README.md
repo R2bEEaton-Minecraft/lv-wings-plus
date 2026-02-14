@@ -113,6 +113,19 @@ Usage:
 - While wearing wings in Creative mode and using vanilla Creative flight, wings now stay in a continuous flap state (hover-style animation).
 - This no longer switches to descent-only flapping when moving downward in Creative flight.
 
+### Angel/Dragon Wearable Wings Update
+- Renamed the wearable `Wings` item ID to `angel_wings`.
+- Added a safe automatic migration so legacy `wings` items remap to `angel_wings` when old saves are loaded.
+- Added a new wearable `dragon_wings` chest item with the same behavior as angel wings.
+- `angel_wings` and `dragon_wings` are both dyeable and compatible with the Wing Colorizer.
+- Updated recipes:
+  - Existing wings recipe now outputs `angel_wings`.
+  - Added a new `dragon_wings` recipe (Elytra + 4 `Dragon Wings Bottle`).
+
+### Oculus/Embeddium Colorizer Preview Fix
+- Fixed feather rendering in the Wing Colorizer preview when using Oculus/Embeddium.
+- The preview now uses the same Sodium/Embeddium bypass vertex wrapper used by in-world wing rendering.
+
 ## 介绍
 
 这个版本的 Wings 是一个由社区开发的延续项目，最初由 pau101 启动，后来由 jt789 移植到 Minecraft 1.18.2。当你饮用翅膀药水时，会获得具有独特属性的不同类型翅膀。

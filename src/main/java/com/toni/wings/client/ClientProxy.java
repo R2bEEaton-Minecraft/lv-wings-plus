@@ -144,11 +144,7 @@ public final class ClientProxy extends Proxy {
     }
 
     private static  <A extends Animator> WingForm<A> createWings(ResourceLocation name, Supplier<A> animator, ModelWings<A> model, Supplier<RenderType> renderType) {
-        String texturePath = String.format("textures/entity/%s.png", name.getPath());
-        ResourceLocation texture = ResourceLocation.tryBuild(name.getNamespace(), texturePath);
-        if (texture == null) {
-            throw new IllegalArgumentException("Invalid texture path: " + texturePath);
-        }
+        ResourceLocation texture = getWingTexture(name, false);
         Supplier<RenderType> actualRenderType = renderType != null ? renderType : () -> RenderType.entityCutout(texture);
         return WingForm.of(
             animator,
@@ -156,6 +152,25 @@ public final class ClientProxy extends Proxy {
             texture,
             actualRenderType
         );
+    }
+
+    public static ResourceLocation getWingTexture(ResourceLocation wingId, boolean colorized) {
+        String texturePath = getWingTexturePath(wingId, colorized);
+        ResourceLocation texture = ResourceLocation.tryBuild(wingId.getNamespace(), texturePath);
+        if (texture == null) {
+            throw new IllegalArgumentException("Invalid texture path: " + texturePath);
+        }
+        return texture;
+    }
+
+    private static String getWingTexturePath(ResourceLocation wingId, boolean colorized) {
+        if (colorized && wingId.equals(WingsMod.Names.ANGEL)) {
+            return "textures/entity/angel_wings_grayscale.png";
+        }
+        if (colorized && wingId.equals(WingsMod.Names.DRAGON)) {
+            return "textures/entity/dragon_wings_grayscale.png";
+        }
+        return String.format("textures/entity/%s.png", wingId.getPath());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -174,7 +189,7 @@ public final class ClientProxy extends Proxy {
                 return dyeable.getColor(stack);
             }
             return 0xFFFFFF;
-        }, WingsItems.WINGS.get(), WingsItems.INVISIBLE_WINGS.get());
+        }, WingsItems.ANGEL_WINGS.get(), WingsItems.DRAGON_WINGS.get(), WingsItems.INVISIBLE_WINGS.get());
     }
 
     private static void registerScreens(FMLClientSetupEvent event) {

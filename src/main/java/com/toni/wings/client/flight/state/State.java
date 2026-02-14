@@ -34,9 +34,10 @@ public abstract class State {
     }
 
     private State getNext(Flight flight, double x, double y, double z, Player player) {
-        boolean creativeFlying = player.getAbilities().mayfly && player.getAbilities().flying && !player.onGround();
+        boolean localCreativeFlying = player.getAbilities().mayfly && player.getAbilities().flying && !player.onGround();
+        boolean creativeFlying = flight.isCreativeHovering() || (player.isLocalPlayer() && localCreativeFlying);
         if (creativeFlying) {
-            return this.createLand();
+            return this.createCreativeHover();
         }
         if (flight.isFlying() || flight.isFloating()) {
             if (y < 0 && player.getXRot() >= this.getPitch(x, y, z)) {
@@ -60,6 +61,10 @@ public abstract class State {
 
     protected State createLand() {
         return new StateLand();
+    }
+
+    protected State createCreativeHover() {
+        return new StateCreativeHover();
     }
 
     protected State createLift() {

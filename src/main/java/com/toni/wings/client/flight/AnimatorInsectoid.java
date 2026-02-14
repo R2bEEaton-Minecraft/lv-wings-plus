@@ -1,5 +1,6 @@
 package com.toni.wings.client.flight;
 
+import com.toni.wings.server.flight.Flight;
 import com.toni.wings.util.MathH;
 import net.minecraft.world.phys.Vec3;
 
@@ -7,6 +8,8 @@ public final class AnimatorInsectoid implements Animator {
     private static final float IDLE_FLAP_RATE = 0.05F;
 
     private static final float LIFT_FLAP_RATE = 1.2F;
+
+    private float creativeHoverFlapRate = (float) Flight.CREATIVE_HOVER_FLAP_RATE_DEFAULT;
 
     private float targetFlapRate = IDLE_FLAP_RATE;
 
@@ -19,6 +22,11 @@ public final class AnimatorInsectoid implements Animator {
     @Override
     public void beginLand() {
         this.beginLift();
+    }
+
+    @Override
+    public void beginCreativeHover() {
+        this.targetFlapRate = this.creativeHoverFlapRate;
     }
 
     @Override
@@ -50,5 +58,10 @@ public final class AnimatorInsectoid implements Animator {
         this.prevFlapCycle = this.flapCycle;
         this.flapCycle += this.flapRate;
         this.flapRate += (this.targetFlapRate - this.flapRate) * 0.4F;
+    }
+
+    @Override
+    public void setCreativeHoverFlapRate(float flapRate) {
+        this.creativeHoverFlapRate = (float) Flight.clampCreativeHoverFlapRate(flapRate);
     }
 }

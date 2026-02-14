@@ -36,6 +36,14 @@ minecraft {
 		}
 
 		client {
+			def devUser = project.findProperty('devUser')
+			def devRunDir = project.findProperty('devRunDir')
+			if (devRunDir != null && !devRunDir.toString().isBlank()) {
+				workingDirectory project.file(devRunDir.toString())
+			}
+			if (devUser != null && !devUser.toString().isBlank()) {
+				args '--username', devUser.toString()
+			}
 		}
 
 		server {
@@ -120,4 +128,10 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
+}
+
+tasks.configureEach {
+	if (name == 'runServer') {
+		standardInput = System.in
+	}
 }

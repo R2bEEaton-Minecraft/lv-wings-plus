@@ -8,4 +8,8 @@ public final class DyeableWingsArmorItem extends WingsArmorItem implements Dyeab
     public DyeableWingsArmorItem(ArmorMaterial material, Type type, Properties properties, FlightApparatus wing, int defaultColor) {
         super(material, type, properties, wing, defaultColor);
     }
+
+    public DyeableWingsArmorItem(ArmorMaterial material, Type type, Properties properties, FlightApparatus wing, PartColors defaultPartColors) {
+        super(material, type, properties, wing, defaultPartColors);
+    }
 }

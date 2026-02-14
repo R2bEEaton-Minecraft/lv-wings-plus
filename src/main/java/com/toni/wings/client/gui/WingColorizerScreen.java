@@ -1,11 +1,13 @@
 package com.toni.wings.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.toni.wings.WingsMod;
 import com.toni.wings.client.apparatus.WingForm;
 import com.toni.wings.client.flight.AnimatorAvian;
 import com.toni.wings.client.model.ModelWingsAvian;
+import com.toni.wings.client.renderer.SodiumBypassVertexConsumer;
 import com.toni.wings.server.item.WingsArmorItem;
 import com.toni.wings.server.menu.WingColorizerMenu;
 import com.toni.wings.server.net.serverbound.MessageApplyWingColors;
@@ -17,6 +19,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
@@ -246,10 +249,20 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
         int panelY = y0 + PREVIEW_Y;
         int cx = panelX + PREVIEW_WIDTH / 2;
 
-        WingForm.get(WingsMod.ANGEL_WINGS).ifPresent(form -> {
+        ItemStack stack = this.menu.getWingStack();
+        if (!(stack.getItem() instanceof WingsArmorItem wingsItem)) {
+            return;
+        }
+        if (!wingsItem.shouldRenderWingModel(stack)) {
+            return;
+        }
+
+        WingForm.get(wingsItem.getWing()).ifPresent(form -> {
             if (!(form.getModel() instanceof ModelWingsAvian model)) {
                 return;
             }
+            WingsArmorItem.PartColors draftPartColors = this.getDraftPartColors();
+            boolean useColorizedTexture = !draftPartColors.equals(wingsItem.getDefaultPartColors());
             RenderSystem.enableBlend();
             RenderSystem.enableDepthTest();
 
@@ -262,16 +275,39 @@ public final class WingColorizerScreen extends AbstractContainerScreen<WingColor
             guiGraphics.pose().translate(0.0F, -1.75F, 0.0F);
 
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
-            model.renderPartColors(
-                this.previewAnimator,
-                0.0F,
-                guiGraphics.pose(),
-                source.getBuffer(form.getRenderType()),
-                LightTexture.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                this.getDraftPartColors(),
-                1.0F
-            );
+            RenderType renderType = form.getRenderType();
+            if (useColorizedTexture) {
+                ResourceLocation wingId = WingsMod.WINGS.getKey(wingsItem.getWing());
+                if (wingId != null) {
+                    renderType = RenderType.entityCutout(com.toni.wings.client.ClientProxy.getWingTexture(wingId, true));
+                }
+            }
+            VertexConsumer builder = SodiumBypassVertexConsumer.wrap(source.getBuffer(renderType));
+            if (useColorizedTexture) {
+                model.renderPartColors(
+                    this.previewAnimator,
+                    0.0F,
+                    guiGraphics.pose(),
+                    builder,
+                    LightTexture.FULL_BRIGHT,
+                    OverlayTexture.NO_OVERLAY,
+                    draftPartColors,
+                    1.0F
+                );
+            } else {
+                model.render(
+                    this.previewAnimator,
+                    0.0F,
+                    guiGraphics.pose(),
+                    builder,
+                    LightTexture.FULL_BRIGHT,
+                    OverlayTexture.NO_OVERLAY,
+                    1.0F,
+                    1.0F,
+                    1.0F,
+                    1.0F
+                );
+            }
             source.endBatch();
             guiGraphics.pose().popPose();
 

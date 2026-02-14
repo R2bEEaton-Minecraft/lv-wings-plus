@@ -3,10 +3,12 @@ package com.toni.wings.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.toni.wings.WingsMod;
+import com.toni.wings.client.ClientProxy;
 import com.toni.wings.client.flight.FlightViews;
 import com.toni.wings.client.model.ModelWingsAvian;
 import com.toni.wings.client.model.ModelWingsInsectoid;
 import com.toni.wings.server.item.WingsArmorItem;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -44,17 +46,28 @@ public final class LayerWings extends RenderLayer<LivingEntity, HumanoidModel<Li
             if (chest.getItem() instanceof WingsArmorItem wingsItem && !wingsItem.shouldRenderWingModel(chest)) {
                 return;
             }
-            WingsArmorItem.PartColors partColors = chest.getItem() instanceof WingsArmorItem wingsItem
-                ? wingsItem.getPartColors(chest)
-                : WingsArmorItem.PartColors.uniform(0xFFFFFF);
+            WingsArmorItem wingsItem = chest.getItem() instanceof WingsArmorItem item ? item : null;
+            WingsArmorItem.PartColors partColors = wingsItem != null ? wingsItem.getPartColors(chest) : WingsArmorItem.PartColors.uniform(0xFFFFFF);
+            boolean useColorizedTexture = wingsItem != null && wingsItem.shouldUseColorizedTexture(chest);
             FlightViews.get(player).ifPresent(flight -> {
                 flight.ifFormPresent(form -> {
-                    VertexConsumer builder = SodiumBypassVertexConsumer.wrap(buffer.getBuffer(form.getRenderType()));
+                    RenderType renderType = form.getRenderType();
+                    if (useColorizedTexture && wingsItem != null) {
+                        var wingId = WingsMod.WINGS.getKey(wingsItem.getWing());
+                        if (wingId != null) {
+                            renderType = RenderType.entityCutout(ClientProxy.getWingTexture(wingId, true));
+                        }
+                    }
+                    VertexConsumer builder = SodiumBypassVertexConsumer.wrap(buffer.getBuffer(renderType));
                     matrixStack.pushPose();
                     this.transform.apply(player, matrixStack);
-                    if (!form.renderPartColors(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, partColors, 1.0F, delta)) {
-                        float[] color = getColorFloats(partColors.blendedColor());
-                        form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F, delta);
+                    if (useColorizedTexture) {
+                        if (!form.renderPartColors(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, partColors, 1.0F, delta)) {
+                            float[] color = getColorFloats(partColors.blendedColor());
+                            form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, color[0], color[1], color[2], 1.0F, delta);
+                        }
+                    } else {
+                        form.render(matrixStack, builder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F, delta);
                     }
                     matrixStack.popPose();
                 });

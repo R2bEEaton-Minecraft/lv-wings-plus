@@ -53,9 +53,13 @@ public final class FlightDefault implements Flight {
 
     private boolean isFloating;
 
+    private boolean creativeHovering;
+
     private FlightPose pose = FlightPose.DEFAULT;
 
     private FlightApparatus flightApparatus = FlightApparatus.NONE;
+
+    private double creativeHoverFlapRate = CREATIVE_HOVER_FLAP_RATE_DEFAULT;
 
     private WingState state = this.voidState;
 
@@ -120,6 +124,19 @@ public final class FlightDefault implements Flight {
     }
 
     @Override
+    public void setCreativeHovering(boolean creativeHovering, PlayerSet players) {
+        if (this.creativeHovering != creativeHovering) {
+            this.creativeHovering = creativeHovering;
+            this.sync(players);
+        }
+    }
+
+    @Override
+    public boolean isCreativeHovering() {
+        return this.creativeHovering;
+    }
+
+    @Override
     public void setWing(FlightApparatus wing, PlayerSet players) {
         Objects.requireNonNull(wing);
         if (this.flightApparatus != wing) {
@@ -131,6 +148,20 @@ public final class FlightDefault implements Flight {
     @Override
     public FlightApparatus getWing() {
         return this.flightApparatus;
+    }
+
+    @Override
+    public void setCreativeHoverFlapRate(double flapRate, PlayerSet players) {
+        double clamped = Flight.clampCreativeHoverFlapRate(flapRate);
+        if (Double.compare(this.creativeHoverFlapRate, clamped) != 0) {
+            this.creativeHoverFlapRate = clamped;
+            this.sync(players);
+        }
+    }
+
+    @Override
+    public double getCreativeHoverFlapRate() {
+        return this.creativeHoverFlapRate;
     }
 
     @Override
@@ -222,6 +253,9 @@ public final class FlightDefault implements Flight {
     @Override
     public void tick(Player player) {
         boolean hasEffect = this.hasEffect(player);
+        if (!player.level().isClientSide) {
+            this.setCreativeHovering(hasEffect && isCreativeHovering(player), PlayerSet.ofAll());
+        }
         FlightApparatus equipped = getEquippedWing(player);
         if (hasEffect || !player.isEffectiveAi()) {
             if (!hasEffect && !player.level().isClientSide) {
@@ -275,6 +309,8 @@ public final class FlightDefault implements Flight {
         this.setWing(other.getWing());
         this.setPose(other.getPose());
         this.setFloating(other.isFloating());
+        this.setCreativeHovering(other.isCreativeHovering());
+        this.setCreativeHoverFlapRate(other.getCreativeHoverFlapRate());
     }
 
     @Override
@@ -288,7 +324,9 @@ public final class FlightDefault implements Flight {
         buf.writeVarInt(this.getTimeFlying());
         buf.writeUtf(Objects.requireNonNull(WingsMod.WINGS.getKey(this.getWing())).toString());
         buf.writeBoolean(this.isFloating());
+        buf.writeBoolean(this.isCreativeHovering());
         buf.writeVarInt(this.getPose().ordinal());
+        buf.writeDouble(this.getCreativeHoverFlapRate());
     }
 
     @Override
@@ -301,7 +339,9 @@ public final class FlightDefault implements Flight {
                 : FlightApparatus.NONE;
         this.setWing(wing);
         this.setFloating(buf.readBoolean());
+        this.setCreativeHovering(buf.readBoolean());
         this.setPose(FlightPose.byOrdinal(buf.readVarInt()));
+        this.setCreativeHoverFlapRate(buf.readDouble());
     }
 
     public static final class Serializer implements NBTSerializer<FlightDefault, CompoundTag> {
@@ -314,6 +354,10 @@ public final class FlightDefault implements Flight {
         private static final String POSE = "pose";
 
         private static final String FLOATING = "floating";
+
+        private static final String CREATIVE_HOVERING = "creativeHovering";
+
+        private static final String CREATIVE_HOVER_FLAP_RATE = "creativeHoverFlapRate";
 
         private final Supplier<FlightDefault> factory;
 
@@ -329,6 +373,8 @@ public final class FlightDefault implements Flight {
             compound.putString(WING, Objects.requireNonNull(WingsMod.WINGS.getKey(instance.getWing())).toString());
             compound.putString(POSE, instance.getPose().getId());
             compound.putBoolean(FLOATING, instance.isFloating());
+            compound.putBoolean(CREATIVE_HOVERING, instance.isCreativeHovering());
+            compound.putDouble(CREATIVE_HOVER_FLAP_RATE, instance.getCreativeHoverFlapRate());
             return compound;
         }
 
@@ -347,6 +393,12 @@ public final class FlightDefault implements Flight {
             }
             if (compound.contains(FLOATING, Tag.TAG_BYTE)) {
                 f.setFloating(compound.getBoolean(FLOATING));
+            }
+            if (compound.contains(CREATIVE_HOVERING, Tag.TAG_BYTE)) {
+                f.setCreativeHovering(compound.getBoolean(CREATIVE_HOVERING));
+            }
+            if (compound.contains(CREATIVE_HOVER_FLAP_RATE, Tag.TAG_DOUBLE)) {
+                f.setCreativeHoverFlapRate(compound.getDouble(CREATIVE_HOVER_FLAP_RATE));
             }
             return f;
         }
@@ -389,5 +441,9 @@ public final class FlightDefault implements Flight {
     private static boolean hasWingsItem(Player player) {
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         return chest.getItem() instanceof WingsArmorItem;
+    }
+
+    private static boolean isCreativeHovering(Player player) {
+        return player.getAbilities().instabuild && player.getAbilities().flying && !player.onGround();
     }
 }

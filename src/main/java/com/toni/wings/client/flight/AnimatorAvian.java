@@ -1,6 +1,7 @@
 package com.toni.wings.client.flight;
 
 import com.google.common.collect.ImmutableMap;
+import com.toni.wings.server.flight.Flight;
 import com.toni.wings.util.MathH;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -9,6 +10,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Random;
 
 public final class AnimatorAvian implements Animator {
+    private static final float LAND_FLAP_RATE = 0.67F;
+
     private static final int LAND_TRANSITION_DURATION = 2;
 
     private static final int GLIDE_TRANSITION_DURATION = 60;
@@ -22,6 +25,8 @@ public final class AnimatorAvian implements Animator {
     private final Movement restPosition = new RestPosition();
 
     private Movement movement = new IdleMovement();
+
+    private float creativeHoverFlapRate = (float) Flight.CREATIVE_HOVER_FLAP_RATE_DEFAULT;
 
     private float prevFlapCycle;
 
@@ -50,6 +55,11 @@ public final class AnimatorAvian implements Animator {
     }
 
     @Override
+    public void beginCreativeHover() {
+        this.beginMovement(new CreativeHoverMovement(), LAND_TRANSITION_DURATION);
+    }
+
+    @Override
     public void beginGlide() {
         this.beginMovement(new GlideMovement(), GLIDE_TRANSITION_DURATION);
     }
@@ -67,6 +77,11 @@ public final class AnimatorAvian implements Animator {
     @Override
     public void beginFall() {
         this.beginMovement(new FallMovement(), FALL_TRANSITION_DURATION);
+    }
+
+    @Override
+    public void setCreativeHoverFlapRate(float flapRate) {
+        this.creativeHoverFlapRate = (float) Flight.clampCreativeHoverFlapRate(flapRate);
     }
 
     public Vec3 getWingRotation(int index, float delta) {
@@ -126,7 +141,7 @@ public final class AnimatorAvian implements Animator {
         return Math.min(Math.abs(index - 1), 2) / 2.0F;
     }
 
-    private final class LandMovement implements Movement {
+    private class LandMovement implements Movement {
         @Override
         public Vec3 getWingRotation(int index, float delta) {
             float pos = AnimatorAvian.this.getWeight(index + 1);
@@ -145,7 +160,14 @@ public final class AnimatorAvian implements Animator {
 
         @Override
         public float update() {
-            return 0.67F;
+            return LAND_FLAP_RATE;
+        }
+    }
+
+    private final class CreativeHoverMovement extends LandMovement {
+        @Override
+        public float update() {
+            return AnimatorAvian.this.creativeHoverFlapRate;
         }
     }
 

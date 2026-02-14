@@ -9,6 +9,12 @@ import net.minecraft.world.phys.Vec3;
 import java.util.function.Consumer;
 
 public interface Flight {
+    double CREATIVE_HOVER_FLAP_RATE_MIN = 0.0D;
+
+    double CREATIVE_HOVER_FLAP_RATE_MAX = 2.0D;
+
+    double CREATIVE_HOVER_FLAP_RATE_DEFAULT = 0.67D;
+
     default void setIsFlying(boolean isFlying) {
         this.setIsFlying(isFlying, PlayerSet.empty());
     }
@@ -40,6 +46,14 @@ public interface Flight {
 
     boolean isFloating();
 
+    default void setCreativeHovering(boolean creativeHovering) {
+        this.setCreativeHovering(creativeHovering, PlayerSet.empty());
+    }
+
+    void setCreativeHovering(boolean creativeHovering, PlayerSet players);
+
+    boolean isCreativeHovering();
+
     default void setWing(FlightApparatus wing) {
         this.setWing(wing, PlayerSet.empty());
     }
@@ -47,6 +61,14 @@ public interface Flight {
     void setWing(FlightApparatus wing, PlayerSet players);
 
     FlightApparatus getWing();
+
+    default void setCreativeHoverFlapRate(double flapRate) {
+        this.setCreativeHoverFlapRate(flapRate, PlayerSet.empty());
+    }
+
+    void setCreativeHoverFlapRate(double flapRate, PlayerSet players);
+
+    double getCreativeHoverFlapRate();
 
     float getFlyingAmount(float delta);
 
@@ -70,6 +92,10 @@ public interface Flight {
     void serialize(FriendlyByteBuf buf);
 
     void deserialize(FriendlyByteBuf buf);
+
+    static double clampCreativeHoverFlapRate(double flapRate) {
+        return Math.max(CREATIVE_HOVER_FLAP_RATE_MIN, Math.min(CREATIVE_HOVER_FLAP_RATE_MAX, flapRate));
+    }
 
     interface FlyingListener {
         void onChange(boolean isFlying);
