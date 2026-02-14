@@ -1,7 +1,7 @@
 package com.toni.wings.client.flight;
 
 import com.google.common.collect.ImmutableMap;
-import com.toni.wings.server.config.WingsClientConfig;
+import com.toni.wings.server.flight.Flight;
 import com.toni.wings.util.MathH;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
@@ -25,6 +25,8 @@ public final class AnimatorAvian implements Animator {
     private final Movement restPosition = new RestPosition();
 
     private Movement movement = new IdleMovement();
+
+    private float creativeHoverFlapRate = (float) Flight.CREATIVE_HOVER_FLAP_RATE_DEFAULT;
 
     private float prevFlapCycle;
 
@@ -75,6 +77,11 @@ public final class AnimatorAvian implements Animator {
     @Override
     public void beginFall() {
         this.beginMovement(new FallMovement(), FALL_TRANSITION_DURATION);
+    }
+
+    @Override
+    public void setCreativeHoverFlapRate(float flapRate) {
+        this.creativeHoverFlapRate = (float) Flight.clampCreativeHoverFlapRate(flapRate);
     }
 
     public Vec3 getWingRotation(int index, float delta) {
@@ -160,7 +167,7 @@ public final class AnimatorAvian implements Animator {
     private final class CreativeHoverMovement extends LandMovement {
         @Override
         public float update() {
-            return (float) WingsClientConfig.getCreativeHoverFlapRate();
+            return AnimatorAvian.this.creativeHoverFlapRate;
         }
     }
 

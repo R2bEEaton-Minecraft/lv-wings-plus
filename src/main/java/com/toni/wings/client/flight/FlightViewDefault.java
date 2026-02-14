@@ -141,6 +141,7 @@ public final class FlightViewDefault implements FlightView {
 
             @Override
             public void update(Flight flight, Player player) {
+                this.animator.setCreativeHoverFlapRate((float) flight.getCreativeHoverFlapRate());
                 this.animator.update();
                 State state = this.state.update(
                     flight,

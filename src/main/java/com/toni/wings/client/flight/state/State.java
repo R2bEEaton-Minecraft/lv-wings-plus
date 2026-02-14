@@ -34,7 +34,8 @@ public abstract class State {
     }
 
     private State getNext(Flight flight, double x, double y, double z, Player player) {
-        boolean creativeFlying = player.getAbilities().mayfly && player.getAbilities().flying && !player.onGround();
+        boolean localCreativeFlying = player.getAbilities().mayfly && player.getAbilities().flying && !player.onGround();
+        boolean creativeFlying = flight.isCreativeHovering() || (player.isLocalPlayer() && localCreativeFlying);
         if (creativeFlying) {
             return this.createCreativeHover();
         }
